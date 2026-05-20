@@ -39,10 +39,11 @@ LANGUAGES = {
 }
 
 # ── Supabase DB helpers ────────────────────────────────────────────────────
-def sb(method, path, body=None, token=None):
+def sb(method, path, body=None, token=None, upsert=False):
     key   = token or SUPABASE_SERVICE
+    prefer = "resolution=merge-duplicates,return=representation" if upsert else "return=representation"
     hdrs  = {"apikey": SUPABASE_SERVICE, "Authorization": f"Bearer {key}",
-              "Content-Type": "application/json", "Prefer": "return=representation"}
+              "Content-Type": "application/json", "Prefer": prefer}
     url   = f"{SUPABASE_URL}/rest/v1{path}"
     r = httpx.request(method, url, headers=hdrs, json=body, timeout=10)
     return r.json() if r.text else {}
@@ -81,20 +82,20 @@ def get_stats(user_id):
 
 def upsert_stats(user_id, data):
     data["user_id"] = user_id
-    sb("POST", "/user_stats", data)
+    sb("POST", "/user_stats", data, upsert=True)
 
 def get_progress(user_id):
     rows = sb("GET", f"/user_progress?user_id=eq.{user_id}&done=eq.true&select=scenario_id")
     return {r["scenario_id"] for r in (rows or [])}
 
 def mark_done(user_id, scenario_id):
-    sb("POST", "/user_progress", {"user_id": user_id, "scenario_id": scenario_id, "done": True})
+    sb("POST", "/user_progress", {"user_id": user_id, "scenario_id": scenario_id, "done": True}, upsert=True)
 
 def set_premium(user_id, plan):
     days   = 366 if plan == "yearly" else 32
     expiry = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
     sb("POST", "/user_stats", {"user_id": user_id, "is_premium": True,
-                                "premium_expires_at": expiry},)
+                               "premium_expires_at": expiry}, upsert=True)
 
 def is_premium(user_id):
     s = get_stats(user_id)
