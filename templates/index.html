@@ -150,6 +150,7 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);-webkit-font-smoothing:ant
         <div style="color:rgba(255,255,255,.65);font-size:11px" id="ch-sub"></div>
       </div>
       <div id="ch-tmr" style="background:rgba(255,255,255,.15);border-radius:99px;padding:3px 9px;font-size:11px;color:#fff;font-weight:700;flex-shrink:0">⏱ 3:00</div>
+      <button id="tts-btn" onclick="toggleTTS()" title="Toggle voice" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;width:31px;height:31px;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🔊</button>
       <button onclick="restartChat()" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;width:31px;height:31px;cursor:pointer;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">↺</button>
     </div>
   </div>
@@ -622,10 +623,21 @@ window.addEventListener('load', () => {
   buildConsentBoxes();
   buildInterpSelects();
   token = localStorage.getItem('lc_tok');
+  const params = new URLSearchParams(location.search);
+  if (params.get('payment') === 'success') history.replaceState({}, '', '/');
   if (token) {
     document.getElementById('load-msg').textContent = 'Loading your data...';
     api('GET', '/user/stats').then(d => {
       userData = d;
+      if (params.get('payment') === 'success' || !d.is_premium) {
+        // Refresh stats fresh from server after payment
+        return api('GET', '/user/stats').then(fresh => { userData = fresh; }).catch(()=>{}).then(() => {
+          if (!userData.consent) { go('s-consent'); return; }
+          if (!userData.language) { renderLangs(); go('s-lang'); return; }
+          currentLang = LANGS.find(l => l.c === userData.language) || LANGS[0];
+          go('s-dash');
+        });
+      }
       if (!d.consent) { go('s-consent'); return; }
       if (!d.language) { renderLangs(); go('s-lang'); return; }
       currentLang = LANGS.find(l => l.c === d.language) || LANGS[0];
@@ -839,6 +851,25 @@ async function sendMsg(txt) {
     else errMsg(e.message);
   } finally { chatLoading = false; }
 }
+let ttsEnabled = true;
+
+function speakText(text) {
+  if (!ttsEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  // Extract English lines (before native language correction — first paragraph usually)
+  // Speak the whole thing but in English voice; student hears the roleplay
+  const utt = new SpeechSynthesisUtterance(text.replace(/\*\*([^*]+)\*\*/g, '$1'));
+  utt.lang = 'en-GB';
+  utt.rate = 0.9;
+  // Try to pick a good English voice
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang.startsWith('en') && v.name.toLowerCase().includes('female'))
+                || voices.find(v => v.lang.startsWith('en-GB'))
+                || voices.find(v => v.lang.startsWith('en'));
+  if (enVoice) utt.voice = enVoice;
+  window.speechSynthesis.speak(utt);
+}
+
 function bubble(role, text, typing) {
   const box = document.getElementById('msgs');
   const row = document.createElement('div');
@@ -853,6 +884,8 @@ function bubble(role, text, typing) {
   b.innerHTML = typing ? '<span class="dots"><span></span><span></span><span></span></span>'
                        : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
   row.appendChild(b); box.appendChild(row); box.scrollTop = box.scrollHeight;
+  // Speak AI response aloud in English
+  if (role === 'ai' && !typing && text) speakText(text);
 }
 function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
 function errMsg(msg) {
@@ -870,6 +903,13 @@ function updSnd() {
   b.style.cursor = v && !chatLoading ? 'pointer' : 'default';
 }
 function chatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }
+function toggleTTS() {
+  ttsEnabled = !ttsEnabled;
+  const btn = document.getElementById('tts-btn');
+  btn.textContent = ttsEnabled ? '🔊' : '🔇';
+  btn.style.opacity = ttsEnabled ? '1' : '0.5';
+  if (!ttsEnabled) window.speechSynthesis.cancel();
+}
 function toggleMic() {
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) { alert('Voice input not supported on this browser. Please type.'); return; }
