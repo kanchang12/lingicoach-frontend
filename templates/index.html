@@ -159,6 +159,7 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);-webkit-font-smoothing:ant
   <div style="padding:8px 9px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--sur);border-top:1px solid var(--bdr);display:flex;align-items:flex-end;gap:6px;flex-shrink:0">
     <button id="mic-btn" onclick="toggleMic()" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--sur2);color:var(--pri);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">🎤</button>
     <textarea id="cin" placeholder="Type your English answer..." rows="1" class="inp" style="flex:1;resize:none;line-height:1.4;max-height:88px;overflow-y:auto;padding:10px 11px" oninput="resizeTa(this)" onkeydown="chatKey(event)"></textarea>
+    <button onclick="replayAI()" title="Listen again" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--sur2);color:var(--pri);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">🔈</button>
     <button id="snd-btn" onclick="sendMsg()" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--sur2);color:var(--txl);font-size:16px;cursor:default;flex-shrink:0;display:flex;align-items:center;justify-content:center">➤</button>
   </div>
 </div>
@@ -903,7 +904,10 @@ function bubble(role, text, typing) {
                        : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
   row.appendChild(b); box.appendChild(row); box.scrollTop = box.scrollHeight;
   // Speak AI response aloud in English
-  if (role === 'ai' && !typing && text) speakText(text);
+  if (role === 'ai' && !typing && text) {
+    window._lastAIText = text;
+    speakText(text);
+  }
 }
 function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
 function errMsg(msg) {
@@ -921,6 +925,9 @@ function updSnd() {
   b.style.cursor = v && !chatLoading ? 'pointer' : 'default';
 }
 function chatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }
+function replayAI() {
+  if (window._lastAIText) speakText(window._lastAIText);
+}
 function toggleTTS() {
   ttsEnabled = !ttsEnabled;
   const btn = document.getElementById('tts-btn');
