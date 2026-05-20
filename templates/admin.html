@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Lingi Coach — Admin Dashboard</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',system-ui,sans-serif;background:#0F1117;color:#E2E8F0;min-height:100vh}
+.top{background:linear-gradient(135deg,#1B7E8C,#145F6A);padding:18px 24px;display:flex;align-items:center;gap:14px}
+.top img{width:40px;height:40px;border-radius:10px}
+.top h1{font-size:18px;font-weight:800;color:#fff}
+.top span{font-size:11px;color:rgba(255,255,255,.6);margin-top:2px;display:block}
+.live{display:inline-flex;align-items:center;gap:6px;background:rgba(34,197,94,.15);border:1px solid rgba(34,197,94,.3);border-radius:99px;padding:4px 10px;font-size:11px;color:#4ADE80;font-weight:700;margin-left:auto}
+.live::before{content:'';width:7px;height:7px;background:#4ADE80;border-radius:50%;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.wrap{padding:20px 24px;max-width:1200px;margin:0 auto}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;margin-bottom:20px}
+.card{background:#1A1D27;border:1px solid #2D3248;border-radius:14px;padding:16px}
+.card .val{font-size:28px;font-weight:900;color:#fff;line-height:1}
+.card .lbl{font-size:11px;color:#64748B;margin-top:5px;font-weight:600;text-transform:uppercase;letter-spacing:.5px}
+.card .ico{font-size:22px;margin-bottom:8px}
+.section{background:#1A1D27;border:1px solid #2D3248;border-radius:14px;padding:16px;margin-bottom:16px}
+.section h2{font-size:13px;font-weight:700;color:#94A3B8;text-transform:uppercase;letter-spacing:.5px;margin-bottom:12px;display:flex;align-items:center;gap:7px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{color:#64748B;font-weight:600;font-size:11px;text-transform:uppercase;padding:6px 10px;text-align:left;border-bottom:1px solid #2D3248}
+td{padding:8px 10px;border-bottom:1px solid #1E2235;color:#CBD5E1;font-family:'Courier New',monospace;font-size:12px}
+tr:last-child td{border-bottom:none}
+.tag{display:inline-flex;align-items:center;padding:2px 8px;border-radius:99px;font-size:10px;font-weight:700}
+.tag.ok{background:rgba(34,197,94,.1);color:#4ADE80;border:1px solid rgba(34,197,94,.2)}
+.tag.err{background:rgba(239,68,68,.1);color:#F87171;border:1px solid rgba(239,68,68,.2)}
+.tag.info{background:rgba(99,102,241,.1);color:#818CF8;border:1px solid rgba(99,102,241,.2)}
+.log-row{display:flex;gap:10px;padding:6px 0;border-bottom:1px solid #1E2235;font-size:12px;font-family:'Courier New',monospace;align-items:flex-start}
+.log-row:last-child{border:none}
+.log-ts{color:#475569;flex-shrink:0;font-size:10px;padding-top:2px}
+.log-path{color:#7C3AED;font-weight:600;flex-shrink:0;min-width:180px}
+.log-detail{color:#64748B}
+.log-user{color:#0EA5E9;margin-left:auto;flex-shrink:0}
+#uptime{font-size:11px;color:#475569;margin-top:4px}
+.refresh{background:#1E2235;border:1px solid #2D3248;border-radius:8px;padding:6px 12px;color:#94A3B8;font-size:12px;cursor:pointer;font-family:inherit}
+.refresh:hover{background:#2D3248}
+.empty{color:#475569;font-size:12px;text-align:center;padding:20px}
+.bar{height:6px;background:#2D3248;border-radius:99px;overflow:hidden;margin-top:8px}
+.bar-fill{height:100%;border-radius:99px;background:linear-gradient(90deg,#1B7E8C,#4ADE80);transition:width .5s}
+</style>
+</head>
+<body>
+<div class="top">
+  <img src="/static/icons/icon-192.png" alt=""/>
+  <div><h1>Lingi Coach Admin</h1><span>Production AI Dashboard</span></div>
+  <div class="live">🟢 Live</div>
+</div>
+<div class="wrap">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div id="uptime" style="font-size:12px;color:#475569">Loading...</div>
+    <button class="refresh" onclick="load()">⟳ Refresh</button>
+  </div>
+
+  <!-- KPI cards -->
+  <div class="grid" id="cards">
+    <div class="card"><div class="ico">🧠</div><div class="val" id="c-gemini">—</div><div class="lbl">Gemini API Calls</div></div>
+    <div class="card"><div class="ico">🌐</div><div class="val" id="c-trans">—</div><div class="lbl">Translations</div></div>
+    <div class="card"><div class="ico">💬</div><div class="val" id="c-sess">—</div><div class="lbl">Sessions Started</div></div>
+    <div class="card"><div class="ico">🟢</div><div class="val" id="c-active">—</div><div class="lbl">Active Sessions</div></div>
+    <div class="card"><div class="ico">👤</div><div class="val" id="c-users">—</div><div class="lbl">Total Users</div></div>
+    <div class="card"><div class="ico">⭐</div><div class="val" id="c-pro">—</div><div class="lbl">Pro Users</div></div>
+    <div class="card"><div class="ico">✅</div><div class="val" id="c-done">—</div><div class="lbl">Scenarios Completed</div></div>
+    <div class="card"><div class="ico">❌</div><div class="val" id="c-err">—</div><div class="lbl">API Errors</div></div>
+  </div>
+
+  <!-- Active sessions -->
+  <div class="section">
+    <h2>💬 Active AI Sessions</h2>
+    <div id="sess-body"><div class="empty">No active sessions</div></div>
+  </div>
+
+  <!-- Execution log -->
+  <div class="section">
+    <h2>🤖 AI Execution Log <span style="font-size:10px;color:#475569;font-weight:400;text-transform:none">(last 50 events)</span></h2>
+    <div id="log-body"><div class="empty">No events yet</div></div>
+  </div>
+
+  <div style="text-align:center;padding:16px 0;font-size:11px;color:#334155">
+    LOVEUAD LTD · Co. 16838046 · Lingi Coach AI Production · Google Gemini · EU AI Act Compliant
+  </div>
+</div>
+<script>
+const KEY = new URLSearchParams(location.search).get('key') || '';
+
+async function load() {
+  try {
+    const d = await fetch(`/admin/data?key=${KEY}`).then(r => r.json());
+    if (d.error) { alert(d.error); return; }
+
+    // KPIs
+    document.getElementById('c-gemini').textContent  = d.counters.gemini_calls.toLocaleString();
+    document.getElementById('c-trans').textContent   = d.counters.translate_calls.toLocaleString();
+    document.getElementById('c-sess').textContent    = d.counters.sessions_started.toLocaleString();
+    document.getElementById('c-active').textContent  = d.counters.sessions_active;
+    document.getElementById('c-users').textContent   = d.counters.total_users.toLocaleString();
+    document.getElementById('c-pro').textContent     = d.counters.premium_users.toLocaleString();
+    document.getElementById('c-done').textContent    = d.counters.scenarios_completed.toLocaleString();
+    document.getElementById('c-err').textContent     = d.counters.errors;
+    document.getElementById('uptime').textContent    = `Server time: ${d.uptime}`;
+
+    // Active sessions
+    const sb = document.getElementById('sess-body');
+    if (d.sessions.length === 0) {
+      sb.innerHTML = '<div class="empty">No active sessions right now</div>';
+    } else {
+      sb.innerHTML = `<table><thead><tr><th>Session ID</th><th>Language</th><th>Messages</th><th>Age</th><th>Status</th></tr></thead><tbody>` +
+        d.sessions.map(s => `<tr>
+          <td>${s.id}</td>
+          <td>${s.lang}</td>
+          <td>${s.msgs}</td>
+          <td>${s.age_s < 60 ? s.age_s+'s' : Math.floor(s.age_s/60)+'m'} ago</td>
+          <td><span class="tag ok">🟢 Active</span></td>
+        </tr>`).join('') +
+        '</tbody></table>';
+    }
+
+    // Log
+    const lb = document.getElementById('log-body');
+    if (d.log.length === 0) {
+      lb.innerHTML = '<div class="empty">No events logged yet</div>';
+    } else {
+      lb.innerHTML = d.log.map(e => {
+        const isOk  = e.detail.includes('OK');
+        const isErr = e.detail.includes('❌');
+        const cls   = isOk ? 'ok' : isErr ? 'err' : 'info';
+        return `<div class="log-row">
+          <div class="log-ts">${e.ts.split(' ')[1]}</div>
+          <div class="log-path">${e.type}</div>
+          <span class="tag ${cls}">${e.detail}</span>
+          <div class="log-user">${e.user}</div>
+        </div>`;
+      }).join('');
+    }
+  } catch(e) {
+    console.error(e);
+  }
+}
+
+load();
+setInterval(load, 10000); // auto-refresh every 10s
+</script>
+</body>
+</html>

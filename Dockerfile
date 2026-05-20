@@ -1,8 +1,7 @@
-FROM nginx:alpine
-COPY . /usr/share/nginx/html
-COPY public/manifest.json /usr/share/nginx/html/manifest.json
-COPY public/sw.js /usr/share/nginx/html/sw.js
-COPY public/icons /usr/share/nginx/html/icons
-COPY nginx.conf /etc/nginx/conf.d/default.conf
-EXPOSE 8000
-CMD ["nginx", "-g", "daemon off;"]
+FROM python:3.11-slim
+WORKDIR /app
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+COPY . .
+EXPOSE 5000
+CMD ["gunicorn", "app:app", "--bind", "0.0.0.0:5000", "--workers", "2", "--timeout", "120"]
