@@ -879,40 +879,55 @@ function speakText(text) {
 function bubble(role, text, typing) {
   const box = document.getElementById('msgs');
   const row = document.createElement('div');
-  row.style.cssText = `display:flex;justify-content:${role==='user'?'flex-end':'flex-start'};margin-bottom:8px`;
+  row.style.cssText = `display:flex; flex-direction:column; align-items:${role==='user'?'flex-end':'flex-start'}; margin-bottom:12px; width:100%`;
+  
   if (typing) row.id = 'typing';
+
+  const innerRow = document.createElement('div');
+  innerRow.style.cssText = `display:flex; align-items:flex-end; gap:8px; max-width:85%`;
+
   if (role === 'ai') {
     const av = document.createElement('div');
-    av.style.cssText = 'width:25px;height:25px;border-radius:7px;background:var(--pri);display:flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px;align-self:flex-end;flex-shrink:0';
-    av.textContent = '🎓'; row.appendChild(av);
+    av.style.cssText = 'width:28px; height:28px; border-radius:8px; background:var(--pri); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-bottom:4px';
+    av.textContent = '🎓';
+    innerRow.appendChild(av);
   }
+
   const bWrap = document.createElement('div');
-  bWrap.style.cssText = 'display:flex;flex-direction:column;max-width:78%;gap:4px';
-  const b = document.createElement('div'); b.className = `bb ${role==='user'?'me':'ai'}`;
-  b.style.maxWidth = '100%';
+  bWrap.style.cssText = 'display:flex; flex-direction:column; gap:6px; width:100%';
+
+  const b = document.createElement('div');
+  b.className = `bb ${role==='user'?'me':'ai'}`;
+  b.style.cssText = 'width:fit-content; word-wrap:break-word;';
   b.innerHTML = typing ? '<span class="dots"><span></span><span></span><span></span></span>'
                        : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  
   bWrap.appendChild(b);
 
-  // Add Listen button on AI bubbles with strict string binding
+  // LOGIC FIX: Ensure the button is appended to the bubble wrapper
   if (role === 'ai' && !typing && text) {
     const listenBtn = document.createElement('button');
-    // Force a snapshot copy of the exact text for this specific bubble instance
     const reliableText = String(text); 
     listenBtn.innerHTML = '🔊 Listen';
-    listenBtn.style.cssText = 'align-self:flex-start;background:var(--pri);color:#fff;border:none;border-radius:99px;padding:4px 12px;font-weight:700;font-size:11px;cursor:pointer;opacity:.85';
+    // Style changed to ensure visibility and prevent "vanishing" under flex
+    listenBtn.style.cssText = 'align-self:flex-start; background:rgba(27,126,140,0.1); color:var(--pri); border:1px solid var(--pri); border-radius:8px; padding:5px 10px; font-weight:800; font-size:11px; cursor:pointer; margin-top:2px; display:inline-flex; align-items:center;';
     
-    listenBtn.addEventListener('click', function() {
+    listenBtn.onclick = (e) => {
+      e.preventDefault();
       speakText(reliableText);
-    });
-    
+    };
     bWrap.appendChild(listenBtn);
   }
-  row.appendChild(bWrap); box.appendChild(row); box.scrollTop = box.scrollHeight;
-  
-  // Store last AI text for replay bar compatibility
+
+  innerRow.appendChild(bWrap);
+  row.appendChild(innerRow);
+  box.appendChild(row);
+  box.scrollTop = box.scrollHeight;
+
   if (role === 'ai' && !typing && text) {
     window._lastAIText = text;
+    // Auto-speak if TTS is on
+    if (ttsEnabled) speakText(text);
   }
 }
 function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
