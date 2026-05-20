@@ -801,19 +801,21 @@ async function openSc(id) {
 
 // ── CHAT ──────────────────────────────────────────────────────────────────
 async function startChat() {
+  // Wake up speech engine on user gesture
+  const wakeup = new SpeechSynthesisUtterance('');
+  window.speechSynthesis.speak(wakeup);
+
   document.getElementById('ch-ttl').textContent = currentSc.t;
   document.getElementById('ch-sub').textContent = `As: ${currentSc.r} · ${currentLang.f} ${currentLang.v}`;
   document.getElementById('msgs').innerHTML = '';
-  document.getElementById('cin').value = ''; document.getElementById('cin').style.height = 'auto';
+  document.getElementById('cin').value = ''; 
   updSnd(); msgCount = 0; clearInterval(timerInt); go('s-chat');
-  api('POST', '/user/streak').then(d => { if (userData) userData.streak = d.streak; }).catch(()=>{});
+
   if (!userData?.is_premium) {
     updTimer();
     timerInt = setInterval(() => { addFree(1); updTimer(); if (freeLeft() <= 0) { clearInterval(timerInt); openPay(); } }, 1000);
-  } else {
-    const t = document.getElementById('ch-tmr');
-    t.textContent = '⭐ Pro'; t.style.background = 'rgba(246,166,35,.3)';
   }
+
   bubble('ai', null, true);
   try {
     const d = await api('POST', '/session/start', {
@@ -821,7 +823,11 @@ async function startChat() {
       scenario_title: currentSc.t, ai_role: currentSc.r, situation: currentSc.d,
       consent_given: true, age_verified: true
     });
-    sid = d.session_id; rmTyping(); bubble('ai', d.message);
+    sid = d.session_id; 
+    rmTyping(); 
+    bubble('ai', d.message);
+    // FORCE SPEAK IMMEDIATELY
+    speakText(d.message); 
   } catch(e) { rmTyping(); errMsg(e.message); }
 }
 function updTimer() {
@@ -834,22 +840,24 @@ function restartChat() { clearInterval(timerInt); if(sid) api('DELETE',`/session
 async function sendMsg(txt) {
   const m = (txt || document.getElementById('cin').value).trim();
   if (!m || !sid || chatLoading) return;
-  if (!userData?.is_premium && freeLeft() <= 0) { openPay(); return; }
-  document.getElementById('cin').value = ''; document.getElementById('cin').style.height = 'auto'; updSnd();
-  bubble('user', m); chatLoading = true; bubble('ai', null, true);
+  
+  // Stop any previous speech
+  window.speechSynthesis.cancel();
+
+  document.getElementById('cin').value = ''; 
+  bubble('user', m); 
+  chatLoading = true; 
+  bubble('ai', null, true);
+
   try {
     const d = await api('POST', '/session/chat', {session_id: sid, message: m});
-    rmTyping(); bubble('ai', d.message); msgCount++;
-    if (msgCount >= 6) {
-      api('POST', '/user/progress', {scenario_id: currentSc.id}).then(() => {
-        if (userData?.progress && !userData.progress.includes(currentSc.id))
-          userData.progress.push(currentSc.id);
-      }).catch(()=>{});
-    }
+    rmTyping(); 
+    bubble('ai', d.message);
+    // FORCE SPEAK THE RESPONSE
+    speakText(d.message); 
   } catch(e) {
     rmTyping();
-    if (e.message.includes('expired') || e.message.includes('not found')) errMsg('Session expired. Tap ↺ to restart.');
-    else errMsg(e.message);
+    errMsg(e.message);
   } finally { chatLoading = false; }
 }
 let ttsEnabled = true;
