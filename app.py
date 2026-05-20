@@ -166,6 +166,10 @@ def manifest():
 def sw():
     return send_from_directory("static", "sw.js")
 
+@app.route("/privacy-policy")
+def privacy_policy():
+    return render_template("privacy.html")
+
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "model": MODEL})
