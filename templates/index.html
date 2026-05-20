@@ -855,79 +855,57 @@ async function sendMsg(txt) {
 let ttsEnabled = true;
 
 function speakText(text) {
-  if (!ttsEnabled || !window.speechSynthesis) return;
-  window.speechSynthesis.cancel();
-  const clean = text.replace(/\*\*([^*]+)\*\*/g, '$1');
-  const utt = new SpeechSynthesisUtterance(clean);
-  utt.lang = 'en-GB';
-  utt.rate = 0.88;
-  utt.pitch = 1.0;
-  const doSpeak = () => {
-    const voices = window.speechSynthesis.getVoices();
-    const v = voices.find(x => x.lang === 'en-GB')
-           || voices.find(x => x.lang.startsWith('en-GB'))
-           || voices.find(x => x.lang.startsWith('en'))
-           || null;
-    if (v) utt.voice = v;
-    window.speechSynthesis.speak(utt);
-  };
-  const voices = window.speechSynthesis.getVoices();
-  if (voices.length) { doSpeak(); }
-  else { window.speechSynthesis.addEventListener('voiceschanged', doSpeak, {once:true}); }
-}
+  // Always check if synthesis is supported
+  if (!window.speechSynthesis) return;
 
+  // Stop any current speaking to avoid overlapping
+  window.speechSynthesis.cancel();
+
+  // Clean the text (remove emojis/markdown stars for better reading)
+  const cleanText = text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/[\u{1F600}-\u{1F64F}]/gu, '');
+
+  const utt = new SpeechSynthesisUtterance(cleanText);
+  utt.lang = 'en-GB'; // British English for the Coach
+  utt.rate = 0.9;     // Slightly slower for better learning
+  utt.pitch = 1.0;
+
+  // Find a high-quality natural voice if available
+  const voices = window.speechSynthesis.getVoices();
+  const preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en-GB')) 
+                        || voices.find(v => v.lang.includes('en-GB'))
+                        || voices[0];
+  
+  if (preferredVoice) utt.voice = preferredVoice;
+
+  window.speechSynthesis.speak(utt);
+}
 function bubble(role, text, typing) {
   const box = document.getElementById('msgs');
   const row = document.createElement('div');
-  row.style.cssText = `display:flex; flex-direction:column; align-items:${role==='user'?'flex-end':'flex-start'}; margin-bottom:12px; width:100%`;
+  row.style.cssText = `display:flex;justify-content:${role==='user'?'flex-end':'flex-start'};margin-bottom:8px`;
   
   if (typing) row.id = 'typing';
-
-  const innerRow = document.createElement('div');
-  innerRow.style.cssText = `display:flex; align-items:flex-end; gap:8px; max-width:85%`;
-
+  
   if (role === 'ai') {
     const av = document.createElement('div');
-    av.style.cssText = 'width:28px; height:28px; border-radius:8px; background:var(--pri); display:flex; align-items:center; justify-content:center; font-size:14px; flex-shrink:0; margin-bottom:4px';
-    av.textContent = '🎓';
-    innerRow.appendChild(av);
+    av.style.cssText = 'width:25px;height:25px;border-radius:7px;background:var(--pri);display:flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px;align-self:flex-end;flex-shrink:0';
+    av.textContent = '🎓'; row.appendChild(av);
   }
 
-  const bWrap = document.createElement('div');
-  bWrap.style.cssText = 'display:flex; flex-direction:column; gap:6px; width:100%';
-
-  const b = document.createElement('div');
+  const b = document.createElement('div'); 
   b.className = `bb ${role==='user'?'me':'ai'}`;
-  b.style.cssText = 'width:fit-content; word-wrap:break-word;';
   b.innerHTML = typing ? '<span class="dots"><span></span><span></span><span></span></span>'
                        : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
   
-  bWrap.appendChild(b);
-
-  // LOGIC FIX: Ensure the button is appended to the bubble wrapper
-  if (role === 'ai' && !typing && text) {
-    const listenBtn = document.createElement('button');
-    const reliableText = String(text); 
-    listenBtn.innerHTML = '🔊 Listen';
-    // Style changed to ensure visibility and prevent "vanishing" under flex
-    listenBtn.style.cssText = 'align-self:flex-start; background:rgba(27,126,140,0.1); color:var(--pri); border:1px solid var(--pri); border-radius:8px; padding:5px 10px; font-weight:800; font-size:11px; cursor:pointer; margin-top:2px; display:inline-flex; align-items:center;';
-    
-    listenBtn.onclick = (e) => {
-      e.preventDefault();
-      speakText(reliableText);
-    };
-    bWrap.appendChild(listenBtn);
-  }
-
-  innerRow.appendChild(bWrap);
-  row.appendChild(innerRow);
+  row.appendChild(b);
   box.appendChild(row);
   box.scrollTop = box.scrollHeight;
 
+  // AUTO-SPEAK LOGIC
   if (role === 'ai' && !typing && text) {
     window._lastAIText = text;
-    // Auto-speak if TTS is on
-    if (ttsEnabled) speakText(text);
+    // We call speakText automatically here
+    speakText(text);
   }
 }
 function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
