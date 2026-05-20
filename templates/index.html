@@ -942,7 +942,17 @@ async function buildSettings() {
 }
 
 // ── PAYWALL ───────────────────────────────────────────────────────────────
-function openPay() { ptab('up'); document.getElementById('paywall').classList.add('on'); }
+async function openPay() {
+  ptab('up');
+  document.getElementById('paywall').classList.add('on');
+  try {
+    const cfg = await fetch('/config').then(r => r.json());
+    const mp = document.getElementById('p-monthly-price');
+    const yp = document.getElementById('p-yearly-price');
+    if (mp) mp.textContent = '£' + cfg.monthly_price + '/mo';
+    if (yp) yp.textContent = '£' + cfg.yearly_price + '/yr';
+  } catch(e) {}
+}
 function closePay() { document.getElementById('paywall').classList.remove('on'); }
 let pwPlan = 'monthly';
 function ptab(t) {
@@ -956,8 +966,8 @@ function ptab(t) {
     pwPlan = 'monthly';
     b.innerHTML = `<div style="margin-bottom:12px">${['✅ Unlimited practice time','✅ All 300 scenarios','✅ All 24 languages','✅ Live interpreter mode','✅ Progress saved to your account'].map(f=>`<div style="font-size:13px;color:var(--txm);padding:3px 0;font-weight:600">${f}</div>`).join('')}</div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
-      <button id="pm" onclick="pickPlan('monthly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--pri);background:#EAF5EE;cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px;color:var(--pri)">Monthly</div><div style="font-weight:900;font-size:14px;color:var(--pri);margin-top:1px">£3.99/mo</div><div style="font-size:9px;color:var(--txl)">Cancel anytime</div></button>
-      <button id="py" onclick="pickPlan('yearly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--bdr);background:var(--sur);cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px">Yearly</div><div style="font-weight:900;font-size:14px;margin-top:1px">£29.99/yr</div><div style="font-size:9px;color:var(--txl)">Save 37%</div></button>
+      <button id="pm" onclick="pickPlan('monthly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--pri);background:#EAF5EE;cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px;color:var(--pri)">Monthly</div><div style="font-weight:900;font-size:14px;color:var(--pri);margin-top:1px" id="p-monthly-price">Loading...</div><div style="font-size:9px;color:var(--txl)">Cancel anytime</div></button>
+      <button id="py" onclick="pickPlan('yearly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--bdr);background:var(--sur);cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px">Yearly</div><div style="font-weight:900;font-size:14px;margin-top:1px" id="p-yearly-price">Loading...</div><div style="font-size:9px;color:var(--txl)">Save 37%</div></button>
     </div>
     <button class="btn bp" onclick="doPay()">Pay with Stripe →</button>
     <p style="text-align:center;font-size:10px;color:var(--txl);margin-top:7px">Secure · Cancel anytime</p><div id="p-err"></div>`;

@@ -1,4 +1,4 @@
-import os, uuid, time, stripe, httpx
+import os, uuid, time, httpx, hmac, hashlib
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from google import genai
@@ -12,17 +12,18 @@ CORS(app)
 
 # ── ENV ────────────────────────────────────────────────────────────────────
 GEMINI_KEY        = os.environ.get("GEMINI_API_KEY", "")
-STRIPE_SECRET     = os.environ.get("STRIPE_SECRET_KEY", "")
-STRIPE_WEBHOOK    = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
-STRIPE_MONTHLY    = os.environ.get("STRIPE_MONTHLY_PRICE", "")
-STRIPE_YEARLY     = os.environ.get("STRIPE_YEARLY_PRICE", "")
+LSQ_API_KEY       = os.environ.get("LSQ_API_KEY", "")
+LSQ_WEBHOOK_SECRET= os.environ.get("LSQ_WEBHOOK_SECRET", "")
+LSQ_MONTHLY_VARIANT= os.environ.get("LSQ_MONTHLY_VARIANT", "")
+LSQ_YEARLY_VARIANT = os.environ.get("LSQ_YEARLY_VARIANT", "")
+LSQ_MONTHLY_PRICE  = os.environ.get("LSQ_MONTHLY_PRICE", "3.99")
+LSQ_YEARLY_PRICE   = os.environ.get("LSQ_YEARLY_PRICE", "29.99")
 FRONTEND_URL      = os.environ.get("FRONTEND_URL", "http://localhost:5000")
 SUPABASE_URL      = os.environ.get("SUPABASE_URL", "")
 SUPABASE_ANON     = os.environ.get("SUPABASE_ANON_KEY", "")
 SUPABASE_SERVICE  = os.environ.get("SUPABASE_SERVICE_KEY", "")
 
 gemini  = genai.Client(api_key=GEMINI_KEY)
-stripe.api_key = STRIPE_SECRET
 MODEL = "gemini-3.5-flash"
 
 sessions     = {}
@@ -167,6 +168,13 @@ def sw():
 @app.route("/health")
 def health():
     return jsonify({"status": "ok", "model": MODEL})
+
+@app.route("/config")
+def config():
+    return jsonify({
+        "monthly_price": LSQ_MONTHLY_PRICE,
+        "yearly_price":  LSQ_YEARLY_PRICE,
+    })
 
 # ── Auth routes (proxy to Supabase) ───────────────────────────────────────
 @app.route("/auth/signup", methods=["POST"])
@@ -337,44 +345,70 @@ def translate():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ── Payment ────────────────────────────────────────────────────────────────
+# ── Payment (LemonSqueezy) ────────────────────────────────────────────────
+COUPONS = {
+    "JUDGE2026": {"discount": 100, "plan": "yearly"},  # 100% free — judges
+}
+
+@app.route("/payment/coupon", methods=["POST"])
+@require_auth
+def apply_coupon():
+    code = (request.json.get("code") or "").strip().upper()
+    if code not in COUPONS:
+        return jsonify({"error": "Invalid or expired coupon code."}), 400
+    c = COUPONS[code]
+    if c["discount"] == 100:
+        set_premium(request.user["id"], c["plan"])
+        log_event("/payment/coupon", f"✅ OK — {code}", request.user.get("email","")[:20])
+        return jsonify({"premium": True, "message": "Premium activated! Enjoy Lingi Coach."})
+    return jsonify({"discount": c["discount"]})
+
 @app.route("/payment/checkout", methods=["POST"])
 @require_auth
 def create_checkout():
-    data     = request.json
-    plan     = data.get("plan", "monthly")
-    price_id = STRIPE_YEARLY if plan == "yearly" else STRIPE_MONTHLY
-    user_id  = request.user["id"]
-    email    = request.user.get("email", "")
+    data      = request.json
+    plan      = data.get("plan", "monthly")
+    variant   = LSQ_YEARLY_VARIANT if plan == "yearly" else LSQ_MONTHLY_VARIANT
+    user_id   = request.user["id"]
+    email     = request.user.get("email", "")
+    app_url   = os.environ.get("FRONTEND_URL", request.host_url.rstrip("/"))
     try:
-        session = stripe.checkout.Session.create(
-            payment_method_types=["card"],
-            mode="subscription",
-            customer_email=email,
-            line_items=[{"price": price_id, "quantity": 1}],
-            success_url=f"{FRONTEND_URL}/?payment=success",
-            cancel_url=f"{FRONTEND_URL}/?payment=cancelled",
-            metadata={"plan": plan, "user_id": user_id},
+        resp = httpx.post(
+            "https://api.lemonsqueezy.com/v1/checkouts",
+            headers={"Authorization": f"Bearer {LSQ_API_KEY}", "Accept": "application/vnd.api+json",
+                     "Content-Type": "application/vnd.api+json"},
+            json={"data": {"type": "checkouts", "attributes": {
+                "checkout_data": {"email": email, "custom": {"user_id": user_id, "plan": plan}},
+                "product_options": {"redirect_url": f"{app_url}/?payment=success",
+                                    "receipt_link_url": f"{app_url}/?payment=success"},
+                "checkout_options": {"button_color": "#1B7E8C"}
+            }, "relationships": {
+                "store":   {"data": {"type": "stores",   "id": os.environ.get("LSQ_STORE_ID","1")}},
+                "variant": {"data": {"type": "variants", "id": variant}}
+            }}},
+            timeout=15
         )
-        return jsonify({"checkout_url": session.url})
+        resp.raise_for_status()
+        url = resp.json()["data"]["attributes"]["url"]
+        return jsonify({"checkout_url": url})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
 @app.route("/payment/webhook", methods=["POST"])
-def stripe_webhook():
-    payload = request.get_data()
-    sig     = request.headers.get("Stripe-Signature", "")
-    try:
-        event = stripe.Webhook.construct_event(payload, sig, STRIPE_WEBHOOK)
-    except Exception:
-        return jsonify({"error": "Invalid webhook"}), 400
-    if event["type"] == "checkout.session.completed":
-        obj     = event["data"]["object"]
-        user_id = obj.get("metadata", {}).get("user_id")
-        plan    = obj.get("metadata", {}).get("plan", "monthly")
+def lsq_webhook():
+    payload   = request.get_data()
+    sig       = request.headers.get("X-Signature", "")
+    expected  = hmac.new(LSQ_WEBHOOK_SECRET.encode(), payload, hashlib.sha256).hexdigest()
+    if not hmac.compare_digest(expected, sig):
+        return jsonify({"error": "Invalid signature"}), 400
+    event = request.json
+    if event.get("meta", {}).get("event_name") == "order_created":
+        custom  = event.get("meta", {}).get("custom_data", {})
+        user_id = custom.get("user_id")
+        plan    = custom.get("plan", "monthly")
         if user_id:
             set_premium(user_id, plan)
-            print(f"[PREMIUM] user {user_id} activated plan={plan}")
+            log_event("/payment/webhook", f"✅ OK — order_created plan={plan}", user_id[:8])
     return jsonify({"received": True})
 
 if __name__ == "__main__":
