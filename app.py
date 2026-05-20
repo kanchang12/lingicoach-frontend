@@ -399,6 +399,33 @@ def create_checkout():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+@app.route("/payment/gpay", methods=["POST"])
+@require_auth
+def gpay_payment():
+    """Receive Google Pay token and activate premium."""
+    data = request.json
+    plan = data.get("plan", "monthly")
+    token = data.get("token", {})
+    user_id = request.user["id"]
+    # TODO: verify token with your payment processor (NatWest Tyl, Stripe, etc.)
+    # For now: log and activate — replace with actual processor verification
+    log_event("/payment/gpay", f"✅ GPay received plan={plan}", user_id[:8])
+    set_premium(user_id, plan)
+    return jsonify({"ok": True})
+
+@app.route("/payment/manual", methods=["POST"])
+@require_auth
+def manual_payment():
+    """User clicks 'I have paid' — logs the request for manual activation."""
+    email = request.json.get("email", "")
+    user_id = request.user["id"]
+    log_event("/payment/manual", f"⏳ PENDING manual activation — {email}", user_id[:8])
+    # Auto-activate immediately for now (trust-based)
+    # In production: verify the NatWest payment manually then call set_premium
+    set_premium(user_id, "monthly")
+    log_event("/payment/manual", f"✅ Auto-activated — {email}", user_id[:8])
+    return jsonify({"ok": True})
+
 @app.route("/payment/webhook", methods=["POST"])
 def lsq_webhook():
     payload   = request.get_data()
