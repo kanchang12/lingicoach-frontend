@@ -853,17 +853,6 @@ async function sendMsg(txt) {
   } finally { chatLoading = false; }
 }
 let ttsEnabled = true;
-let ttsUnlocked = false;
-
-// Unlock TTS on first user interaction
-function unlockTTS() {
-  if (ttsUnlocked || !window.speechSynthesis) return;
-  const utt = new SpeechSynthesisUtterance('');
-  window.speechSynthesis.speak(utt);
-  ttsUnlocked = true;
-}
-document.addEventListener('click', unlockTTS, {once: true});
-document.addEventListener('touchstart', unlockTTS, {once: true});
 
 function speakText(text) {
   if (!ttsEnabled || !window.speechSynthesis) return;
@@ -873,20 +862,18 @@ function speakText(text) {
   utt.lang = 'en-GB';
   utt.rate = 0.88;
   utt.pitch = 1.0;
-  // Load voices — needed on Chrome/Android
-  const trySpeak = () => {
+  const doSpeak = () => {
     const voices = window.speechSynthesis.getVoices();
-    const enVoice = voices.find(v => v.lang === 'en-GB')
-                  || voices.find(v => v.lang.startsWith('en-GB'))
-                  || voices.find(v => v.lang.startsWith('en'));
-    if (enVoice) utt.voice = enVoice;
+    const v = voices.find(x => x.lang === 'en-GB')
+           || voices.find(x => x.lang.startsWith('en-GB'))
+           || voices.find(x => x.lang.startsWith('en'))
+           || null;
+    if (v) utt.voice = v;
     window.speechSynthesis.speak(utt);
   };
-  if (window.speechSynthesis.getVoices().length) {
-    trySpeak();
-  } else {
-    window.speechSynthesis.onvoiceschanged = trySpeak;
-  }
+  const voices = window.speechSynthesis.getVoices();
+  if (voices.length) { doSpeak(); }
+  else { window.speechSynthesis.addEventListener('voiceschanged', doSpeak, {once:true}); }
 }
 
 function bubble(role, text, typing) {
@@ -916,10 +903,9 @@ function bubble(role, text, typing) {
     bWrap.appendChild(listenBtn);
   }
   row.appendChild(bWrap); box.appendChild(row); box.scrollTop = box.scrollHeight;
-  // Auto-speak AI response
+  // Store last AI text for replay
   if (role === 'ai' && !typing && text) {
     window._lastAIText = text;
-    speakText(text);
   }
 }
 function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
