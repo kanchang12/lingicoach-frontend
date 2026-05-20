@@ -899,11 +899,24 @@ function bubble(role, text, typing) {
     av.style.cssText = 'width:25px;height:25px;border-radius:7px;background:var(--pri);display:flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px;align-self:flex-end;flex-shrink:0';
     av.textContent = '🎓'; row.appendChild(av);
   }
+  const bWrap = document.createElement('div');
+  bWrap.style.cssText = 'display:flex;flex-direction:column;max-width:78%;gap:4px';
   const b = document.createElement('div'); b.className = `bb ${role==='user'?'me':'ai'}`;
+  b.style.maxWidth = '100%';
   b.innerHTML = typing ? '<span class="dots"><span></span><span></span><span></span></span>'
                        : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-  row.appendChild(b); box.appendChild(row); box.scrollTop = box.scrollHeight;
-  // Speak AI response aloud in English
+  bWrap.appendChild(b);
+  // Add Listen button on AI bubbles
+  if (role === 'ai' && !typing && text) {
+    const listenBtn = document.createElement('button');
+    const msgText = text;
+    listenBtn.innerHTML = '🔊 Listen';
+    listenBtn.style.cssText = 'align-self:flex-start;background:var(--pri);color:#fff;border:none;border-radius:99px;padding:4px 12px;font-family:'Nunito',sans-serif;font-weight:700;font-size:11px;cursor:pointer;opacity:.85';
+    listenBtn.onclick = () => speakText(msgText);
+    bWrap.appendChild(listenBtn);
+  }
+  row.appendChild(bWrap); box.appendChild(row); box.scrollTop = box.scrollHeight;
+  // Auto-speak AI response
   if (role === 'ai' && !typing && text) {
     window._lastAIText = text;
     speakText(text);
