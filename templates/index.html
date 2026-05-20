@@ -1059,17 +1059,20 @@ function ptab(t) {
   const b = document.getElementById('pay-body');
   if (t === 'up') {
     pwPlan = 'monthly';
-    b.innerHTML = `<div style="margin-bottom:12px">${['✅ Unlimited practice time','✅ All 300 scenarios','✅ All 24 languages','✅ Live interpreter mode','✅ Progress saved to your account'].map(f=>`<div style="font-size:13px;color:var(--txm);padding:3px 0;font-weight:600">${f}</div>`).join('')}</div>
+    b.innerHTML = `<div style="margin-bottom:12px">${['✅ Unlimited practice time','✅ All 300 scenarios','✅ All 45 languages','✅ Live interpreter mode','✅ Progress saved to your account'].map(f=>`<div style="font-size:13px;color:var(--txm);padding:3px 0;font-weight:600">${f}</div>`).join('')}</div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
       <button id="pm" onclick="pickPlan('monthly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--pri);background:#EAF5EE;cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px;color:var(--pri)">Monthly</div><div style="font-weight:900;font-size:14px;color:var(--pri);margin-top:1px" id="p-monthly-price">Loading...</div><div style="font-size:9px;color:var(--txl)">Cancel anytime</div></button>
       <button id="py" onclick="pickPlan('yearly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--bdr);background:var(--sur);cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px">Yearly</div><div style="font-weight:900;font-size:14px;margin-top:1px" id="p-yearly-price">Loading...</div><div style="font-size:9px;color:var(--txl)">Save 37%</div></button>
     </div>
-    <button class="btn bp" onclick="doPay()">Pay with LemonSqueezy →</button>
-    <div style="display:flex;gap:8px;margin-top:10px">
+    <button class="btn bp" id="gpay-btn" onclick="doGPay()" style="background:#000;color:#fff;gap:10px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0z" fill="#fff"/><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0z" fill="#4285F4"/><text x="4" y="16" font-size="9" font-family="Arial" font-weight="bold" fill="white">G Pay</text></svg>
+      Pay with Google Pay
+    </button>
+    <div style="margin-top:10px;display:flex;gap:8px">
       <input class="inp" id="coupon-inp" placeholder="Have a coupon code?" style="flex:1;font-size:13px;padding:10px 12px"/>
       <button onclick="applyCoupon()" style="padding:10px 14px;border-radius:var(--rs);border:1.5px solid var(--pri);background:transparent;color:var(--pri);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">Apply</button>
     </div>
-    <p style="text-align:center;font-size:10px;color:var(--txl);margin-top:7px">Secure · Powered by LemonSqueezy · Cancel anytime</p><div id="p-err"></div>`;
+    <div id="p-err"></div>`;
   } else {
     b.innerHTML = `<p style="font-size:13px;color:var(--txm);margin-bottom:11px;line-height:1.6">Already subscribed on another device? Contact kanchan.g12@gmail.com to link your account.</p>`;
   }
@@ -1081,6 +1084,22 @@ function pickPlan(p) {
     b.style.borderColor = on ? 'var(--pri)' : 'var(--bdr)';
     b.style.background  = on ? '#EAF5EE' : 'var(--sur)';
   });
+}
+async function confirmManualPay() {
+  const email = (document.getElementById('pay-email').value || '').trim();
+  if (!email || !email.includes('@')) {
+    document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Enter the email you used to pay.</div>';
+    return;
+  }
+  document.getElementById('p-err').innerHTML = '<div style="text-align:center;padding:7px;font-size:12px;color:var(--txl)">Sending request...</div>';
+  try {
+    const d = await api('POST', '/payment/manual', {email});
+    if (d.ok) {
+      document.getElementById('p-err').innerHTML = '<div class="ok" style="margin-top:7px">✅ Request sent! You will be activated within a few minutes.</div>';
+    }
+  } catch(e) {
+    document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
+  }
 }
 async function applyCoupon() {
   const code = (document.getElementById('coupon-inp').value || '').trim();
@@ -1098,13 +1117,79 @@ async function applyCoupon() {
     document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
   }
 }
-async function doPay() {
-  document.getElementById('p-err').innerHTML = '<div style="text-align:center;padding:7px;font-size:12px;color:var(--txl)">Redirecting to LemonSqueezy...</div>';
+async function doPay() {}
+
+async function doGPay() {
+  const btn = document.getElementById('gpay-btn');
+  btn.textContent = 'Processing...'; btn.disabled = true;
+
+  // Prices
+  const prices = {'monthly': '3.99', 'yearly': '29.99'};
+  const amount = prices[pwPlan] || '3.99';
+
+  if (!window.PaymentRequest) {
+    document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Google Pay not available on this browser. Please use Chrome on Android.</div>';
+    btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false;
+    return;
+  }
+
   try {
-    const d = await api('POST', '/payment/checkout', {plan: pwPlan});
-    window.location.href = d.checkout_url;
+    const request = new PaymentRequest(
+      [{
+        supportedMethods: 'https://google.com/pay',
+        data: {
+          apiVersion: 2,
+          apiVersionMinor: 0,
+          merchantInfo: {
+            merchantName: 'Lingi Coach — LOVEUAD LTD'
+          },
+          allowedPaymentMethods: [{
+            type: 'CARD',
+            parameters: {
+              allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
+              allowedCardNetworks: ['MASTERCARD', 'VISA', 'AMEX']
+            },
+            tokenizationSpecification: {
+              type: 'DIRECT',
+              parameters: {
+                protocolVersion: 'ECv2',
+                publicKey: window.GPAY_PUBLIC_KEY || ''
+              }
+            }
+          }]
+        }
+      }],
+      {
+        total: { label: `Lingi Coach ${pwPlan === 'yearly' ? 'Yearly' : 'Monthly'}`, amount: { currency: 'GBP', value: amount } },
+        displayItems: [{ label: 'Lingi Coach Pro', amount: { currency: 'GBP', value: amount } }]
+      }
+    );
+
+    const canPay = await request.canMakePayment();
+    if (!canPay) {
+      document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Google Pay not set up on this device. Please add a card to Google Pay first.</div>';
+      btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false;
+      return;
+    }
+
+    const response = await request.show();
+    // Send token to backend
+    const result = await api('POST', '/payment/gpay', {
+      token: response.details,
+      plan: pwPlan,
+      amount: amount
+    });
+    await response.complete('success');
+    if (result.ok) {
+      userData.is_premium = true;
+      closePay();
+      await buildDash();
+    }
   } catch(e) {
-    document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
+    if (e.name !== 'AbortError') {
+      document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
+    }
+    btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false;
   }
 }
 
