@@ -801,21 +801,26 @@ async function openSc(id) {
 
 // ── CHAT ──────────────────────────────────────────────────────────────────
 async function startChat() {
-  // Wake up speech engine on user gesture
-  const wakeup = new SpeechSynthesisUtterance('');
-  window.speechSynthesis.speak(wakeup);
-
   document.getElementById('ch-ttl').textContent = currentSc.t;
   document.getElementById('ch-sub').textContent = `As: ${currentSc.r} · ${currentLang.f} ${currentLang.v}`;
   document.getElementById('msgs').innerHTML = '';
-  document.getElementById('cin').value = ''; 
+  document.getElementById('cin').value = ''; document.getElementById('cin').style.height = 'auto';
   updSnd(); msgCount = 0; clearInterval(timerInt); go('s-chat');
-
+  api('POST', '/user/streak').then(d => { if (userData) userData.streak = d.streak; }).catch(()=>{});
   if (!userData?.is_premium) {
     updTimer();
     timerInt = setInterval(() => { addFree(1); updTimer(); if (freeLeft() <= 0) { clearInterval(timerInt); openPay(); } }, 1000);
+  } else {
+    const t = document.getElementById('ch-tmr');
+    t.textContent = '⭐ Pro'; t.style.background = 'rgba(246,166,35,.3)';
   }
-
+  // Wake up speech engine on user gesture
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+    const wake = new SpeechSynthesisUtterance('');
+    window.speechSynthesis.speak(wake);
+    window.speechSynthesis.getVoices();
+  }
   bubble('ai', null, true);
   try {
     const d = await api('POST', '/session/start', {
@@ -823,11 +828,7 @@ async function startChat() {
       scenario_title: currentSc.t, ai_role: currentSc.r, situation: currentSc.d,
       consent_given: true, age_verified: true
     });
-    sid = d.session_id; 
-    rmTyping(); 
-    bubble('ai', d.message);
-    // FORCE SPEAK IMMEDIATELY
-    speakText(d.message); 
+    sid = d.session_id; rmTyping(); bubble('ai', d.message);
   } catch(e) { rmTyping(); errMsg(e.message); }
 }
 function updTimer() {
@@ -840,80 +841,102 @@ function restartChat() { clearInterval(timerInt); if(sid) api('DELETE',`/session
 async function sendMsg(txt) {
   const m = (txt || document.getElementById('cin').value).trim();
   if (!m || !sid || chatLoading) return;
-  
-  // Stop any previous speech
-  window.speechSynthesis.cancel();
-
-  document.getElementById('cin').value = ''; 
-  bubble('user', m); 
-  chatLoading = true; 
-  bubble('ai', null, true);
-
+  if (!userData?.is_premium && freeLeft() <= 0) { openPay(); return; }
+  document.getElementById('cin').value = ''; document.getElementById('cin').style.height = 'auto'; updSnd();
+  bubble('user', m); chatLoading = true; bubble('ai', null, true);
   try {
     const d = await api('POST', '/session/chat', {session_id: sid, message: m});
-    rmTyping(); 
-    bubble('ai', d.message);
-    // FORCE SPEAK THE RESPONSE
-    speakText(d.message); 
+    rmTyping(); bubble('ai', d.message); msgCount++;
+    if (msgCount >= 6) {
+      api('POST', '/user/progress', {scenario_id: currentSc.id}).then(() => {
+        if (userData?.progress && !userData.progress.includes(currentSc.id))
+          userData.progress.push(currentSc.id);
+      }).catch(()=>{});
+    }
   } catch(e) {
     rmTyping();
-    errMsg(e.message);
+    if (e.message.includes('expired') || e.message.includes('not found')) errMsg('Session expired. Tap ↺ to restart.');
+    else errMsg(e.message);
   } finally { chatLoading = false; }
 }
 let ttsEnabled = true;
 
 function speakText(text) {
-  // Always check if synthesis is supported
-  if (!window.speechSynthesis) return;
-
-  // Stop any current speaking to avoid overlapping
+  if (!ttsEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
+  const clean = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+  if (!clean) return;
 
-  // Clean the text (remove emojis/markdown stars for better reading)
-  const cleanText = text.replace(/\*\*([^*]+)\*\*/g, '$1').replace(/[\u{1F600}-\u{1F64F}]/gu, '');
+  const doSpeak = () => {
+    const voices = window.speechSynthesis.getVoices();
+    const nativeLang = currentLang ? (currentLang.s || currentLang.c) : null;
+    const nativeVoice = nativeLang ? (voices.find(v => v.lang === nativeLang)
+      || voices.find(v => v.lang.startsWith(nativeLang.split('-')[0]))) : null;
+    const enVoice = voices.find(v => v.lang === 'en-GB')
+      || voices.find(v => v.lang.startsWith('en-GB'))
+      || voices.find(v => v.lang.startsWith('en'));
 
-  const utt = new SpeechSynthesisUtterance(cleanText);
-  utt.lang = 'en-GB'; // British English for the Coach
-  utt.rate = 0.9;     // Slightly slower for better learning
-  utt.pitch = 1.0;
+    // Split text into native-script segments and latin (English) segments
+    const segments = [];
+    let buf = '';
+    let lastNative = null;
+    for (const ch of clean) {
+      const isNative = /[^\x00-\x7F]/.test(ch);
+      if (lastNative === null) lastNative = isNative;
+      if (isNative !== lastNative) {
+        if (buf.trim()) segments.push({t: buf.trim(), native: lastNative});
+        buf = ch; lastNative = isNative;
+      } else { buf += ch; }
+    }
+    if (buf.trim()) segments.push({t: buf.trim(), native: lastNative});
 
-  // Find a high-quality natural voice if available
+    segments.forEach(seg => {
+      const utt = new SpeechSynthesisUtterance(seg.t);
+      utt.rate = 0.88;
+      if (seg.native && nativeVoice) {
+        utt.voice = nativeVoice; utt.lang = nativeLang;
+      } else {
+        if (enVoice) utt.voice = enVoice; utt.lang = 'en-GB';
+      }
+      window.speechSynthesis.speak(utt);
+    });
+  };
+
   const voices = window.speechSynthesis.getVoices();
-  const preferredVoice = voices.find(v => v.name.includes('Google') && v.lang.includes('en-GB')) 
-                        || voices.find(v => v.lang.includes('en-GB'))
-                        || voices[0];
-  
-  if (preferredVoice) utt.voice = preferredVoice;
-
-  window.speechSynthesis.speak(utt);
+  if (voices.length) doSpeak();
+  else window.speechSynthesis.addEventListener('voiceschanged', doSpeak, {once: true});
 }
+
 function bubble(role, text, typing) {
   const box = document.getElementById('msgs');
   const row = document.createElement('div');
   row.style.cssText = `display:flex;justify-content:${role==='user'?'flex-end':'flex-start'};margin-bottom:8px`;
-  
   if (typing) row.id = 'typing';
-  
   if (role === 'ai') {
     const av = document.createElement('div');
     av.style.cssText = 'width:25px;height:25px;border-radius:7px;background:var(--pri);display:flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px;align-self:flex-end;flex-shrink:0';
     av.textContent = '🎓'; row.appendChild(av);
   }
-
-  const b = document.createElement('div'); 
-  b.className = `bb ${role==='user'?'me':'ai'}`;
+  const bWrap = document.createElement('div');
+  bWrap.style.cssText = 'display:flex;flex-direction:column;max-width:78%;gap:4px';
+  const b = document.createElement('div'); b.className = `bb ${role==='user'?'me':'ai'}`;
+  b.style.maxWidth = '100%';
   b.innerHTML = typing ? '<span class="dots"><span></span><span></span><span></span></span>'
                        : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-  
-  row.appendChild(b);
-  box.appendChild(row);
-  box.scrollTop = box.scrollHeight;
-
-  // AUTO-SPEAK LOGIC
+  bWrap.appendChild(b);
+  // Add Listen button on AI bubbles
+  if (role === 'ai' && !typing && text) {
+    const listenBtn = document.createElement('button');
+    const msgText = text;
+    listenBtn.innerHTML = '🔊 Listen';
+    listenBtn.style.cssText = 'align-self:flex-start;background:var(--pri);color:#fff;border:none;border-radius:99px;padding:4px 12px;font-weight:700;font-size:11px;cursor:pointer;opacity:.85';
+    listenBtn.onclick = () => speakText(msgText);
+    bWrap.appendChild(listenBtn);
+  }
+  row.appendChild(bWrap); box.appendChild(row); box.scrollTop = box.scrollHeight;
   if (role === 'ai' && !typing && text) {
     window._lastAIText = text;
-    // We call speakText automatically here
-    speakText(text);
+    setTimeout(() => speakText(text), 150);
   }
 }
 function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
