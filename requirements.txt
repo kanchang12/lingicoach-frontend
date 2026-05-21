@@ -1,6 +1,8 @@
 flask
 flask-cors
-google-genai
 httpx
-gunicorn
-googleapiclient
+google-genai
+google-api-python-client
+google-auth
+google-api-python-client
+google-auth
