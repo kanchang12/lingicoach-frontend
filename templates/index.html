@@ -864,33 +864,44 @@ let ttsEnabled = true;
 function speakText(text) {
   if (!ttsEnabled || !window.speechSynthesis) return;
   window.speechSynthesis.cancel();
-  const clean = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+  
+  // 1. Clean formatting
+  let clean = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+  
+  // 2. NEW: Remove punctuation to force continuous flow
+  // This removes periods, commas, exclamation points, question marks, etc.
+  clean = clean.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+  
+  // 3. Clean up extra whitespace created by removing punctuation
+  clean = clean.replace(/\s+/g, " ").trim();
+  
   if (!clean) return;
 
-  const doSpeak = () => {
-    const voices = window.speechSynthesis.getVoices();
-    const nativeLang = currentLang ? (currentLang.s || currentLang.c) : null;
-    const nativeVoice = nativeLang ? (voices.find(v => v.lang === nativeLang)
-      || voices.find(v => v.lang.startsWith(nativeLang.split('-')[0]))) : null;
-    const enVoice = voices.find(v => v.lang === 'en-GB')
-      || voices.find(v => v.lang.startsWith('en-GB'))
-      || voices.find(v => v.lang.startsWith('en'));
-
-    // ONE utterance — no splits, no gaps
-    const nativeChars = (clean.match(/[^\x00-\x7F]/g) || []).length;
-    const useNative = nativeVoice && (nativeChars / clean.length > 0.3);
-    const utt = new SpeechSynthesisUtterance(clean.replace(/[\n\r]+/g, " ").replace(/\s+/g, " ").trim());
-    utt.rate = 0.88;
-    if (useNative) { utt.voice = nativeVoice; utt.lang = nativeLang; }
-    else { if (enVoice) utt.voice = enVoice; utt.lang = 'en-GB'; }
-    window.speechSynthesis.speak(utt);
-    };
-
   const voices = window.speechSynthesis.getVoices();
-  if (voices.length) doSpeak();
-  else window.speechSynthesis.addEventListener('voiceschanged', doSpeak, {once: true});
-}
+  const nativeLang = currentLang ? (currentLang.s || currentLang.c) : null;
+  const nativeVoice = nativeLang ? (voices.find(v => v.lang === nativeLang) 
+    || voices.find(v => v.lang.startsWith(nativeLang.split('-')[0]))) : null;
+  const enVoice = voices.find(v => v.lang === 'en-GB') 
+    || voices.find(v => v.lang.startsWith('en-GB')) 
+    || voices.find(v => v.lang.startsWith('en'));
 
+  const nativeChars = (clean.match(/[^\x00-\x7F]/g) || []).length;
+  const useNative = nativeVoice && (nativeChars / clean.length > 0.3);
+
+  const utt = new SpeechSynthesisUtterance(clean);
+  utt.rate = 0.95; 
+  utt.pitch = 1.0;
+    
+  if (useNative) {
+    utt.voice = nativeVoice;
+    utt.lang = nativeLang;
+  } else {
+    if (enVoice) utt.voice = enVoice;
+    utt.lang = 'en-GB';
+  }
+    
+  window.speechSynthesis.speak(utt);
+}
 function bubble(role, text, typing) {
   const box = document.getElementById('msgs');
   const row = document.createElement('div');
