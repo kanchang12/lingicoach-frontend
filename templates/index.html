@@ -876,27 +876,21 @@ function speakText(text) {
       || voices.find(v => v.lang.startsWith('en-GB'))
       || voices.find(v => v.lang.startsWith('en'));
 
-    // Split text into native-script segments and latin (English) segments
-    const segments = [];
-    let buf = '';
-    let lastNative = null;
-    for (const ch of clean) {
-      const isNative = /[^\x00-\x7F]/.test(ch);
-      if (lastNative === null) lastNative = isNative;
-      if (isNative !== lastNative) {
-        if (buf.trim()) segments.push({t: buf.trim(), native: lastNative});
-        buf = ch; lastNative = isNative;
-      } else { buf += ch; }
-    }
-    if (buf.trim()) segments.push({t: buf.trim(), native: lastNative});
+    // Split into sentences, each sentence spoken as one utterance
+    const sentences = clean.match(/[^.!?\n]+[.!?\n]*/g) || [clean];
 
-    segments.forEach(seg => {
-      const utt = new SpeechSynthesisUtterance(seg.t);
+    sentences.forEach(sentence => {
+      const s = sentence.trim();
+      if (!s) return;
+      const isNative = /[^\x00-\x7F]/.test(s);
+      const utt = new SpeechSynthesisUtterance(s);
       utt.rate = 0.88;
-      if (seg.native && nativeVoice) {
-        utt.voice = nativeVoice; utt.lang = nativeLang;
+      if (isNative && nativeVoice) {
+        utt.voice = nativeVoice;
+        utt.lang = nativeLang;
       } else {
-        if (enVoice) utt.voice = enVoice; utt.lang = 'en-GB';
+        if (enVoice) utt.voice = enVoice;
+        utt.lang = 'en-GB';
       }
       window.speechSynthesis.speak(utt);
     });
