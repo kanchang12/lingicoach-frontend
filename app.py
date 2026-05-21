@@ -148,7 +148,10 @@ Situation: {situation}
 4. Keep replies under 80 words. No lectures.
 
 ## PRIVACY
-Never ask for personal information."""
+Never ask for personal information.
+
+## FORMATTING
+Write in plain flowing paragraphs. No bullet points. No numbered lists. No line breaks within sentences. No markdown. Each response must be continuous text that reads naturally when spoken aloud."""
 
 def translate_prompt(from_lang, to_lang):
     return f"You are a professional interpreter. Translate between {from_lang} and {to_lang}. Return ONLY the translation, no labels or preamble."
