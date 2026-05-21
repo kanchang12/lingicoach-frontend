@@ -876,25 +876,15 @@ function speakText(text) {
       || voices.find(v => v.lang.startsWith('en-GB'))
       || voices.find(v => v.lang.startsWith('en'));
 
-    // Split into sentences, each sentence spoken as one utterance
-    const sentences = clean.match(/[^.!?\n]+[.!?\n]*/g) || [clean];
-
-    sentences.forEach(sentence => {
-      const s = sentence.trim();
-      if (!s) return;
-      const isNative = /[^\x00-\x7F]/.test(s);
-      const utt = new SpeechSynthesisUtterance(s);
-      utt.rate = 0.88;
-      if (isNative && nativeVoice) {
-        utt.voice = nativeVoice;
-        utt.lang = nativeLang;
-      } else {
-        if (enVoice) utt.voice = enVoice;
-        utt.lang = 'en-GB';
-      }
-      window.speechSynthesis.speak(utt);
-    });
-  };
+    // ONE utterance — no splits, no gaps
+    const nativeChars = (clean.match(/[^\x00-\x7F]/g) || []).length;
+    const useNative = nativeVoice && (nativeChars / clean.length > 0.3);
+    const utt = new SpeechSynthesisUtterance(clean);
+    utt.rate = 0.88;
+    if (useNative) { utt.voice = nativeVoice; utt.lang = nativeLang; }
+    else { if (enVoice) utt.voice = enVoice; utt.lang = 'en-GB'; }
+    window.speechSynthesis.speak(utt);
+    };
 
   const voices = window.speechSynthesis.getVoices();
   if (voices.length) doSpeak();
