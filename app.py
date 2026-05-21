@@ -295,7 +295,8 @@ def start_session():
         )
         resp = chat.send_message("Begin the session now.")
         sessions[sid] = {"chat": chat, "last": time.time(), "count": 1}
-        return jsonify({"session_id": sid, "message": resp.text})
+        msg = " ".join(resp.text.split())
+        return jsonify({"session_id": sid, "message": msg})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
@@ -319,7 +320,8 @@ def chat_message():
         resp = s["chat"].send_message(msg)
         s["last"] = time.time()
         s["count"] += 1
-        return jsonify({"session_id": sid, "message": resp.text})
+        clean_msg = " ".join(resp.text.split())
+        return jsonify({"session_id": sid, "message": clean_msg})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
