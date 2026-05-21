@@ -6,24 +6,24 @@ from google.genai import types
 from collections import defaultdict
 from datetime import datetime, timedelta, timezone
 from functools import wraps
+from googleapiclient.discovery import build
+from google.oauth2 import service_account
 
 app = Flask(__name__)
 CORS(app)
 
 # ── ENV ────────────────────────────────────────────────────────────────────
-GEMINI_KEY        = os.environ.get("GEMINI_API_KEY", "")
-LSQ_API_KEY       = os.environ.get("LSQ_API_KEY", "")
-LSQ_WEBHOOK_SECRET= os.environ.get("LSQ_WEBHOOK_SECRET", "")
-LSQ_MONTHLY_VARIANT= os.environ.get("LSQ_MONTHLY_VARIANT", "")
-LSQ_YEARLY_VARIANT = os.environ.get("LSQ_YEARLY_VARIANT", "")
-LSQ_MONTHLY_PRICE  = os.environ.get("LSQ_MONTHLY_PRICE", "3.99")
-LSQ_YEARLY_PRICE   = os.environ.get("LSQ_YEARLY_PRICE", "29.99")
+GEMINI_API_KEY     = os.environ.get("GEMINI_API_KEY", "")
+GOOGLE_SERVICE_ACCOUNT_FILE = os.environ.get("GOOGLE_SERVICE_ACCOUNT_FILE", "")
+GOOGLE_PACKAGE_NAME = os.environ.get("GOOGLE_PACKAGE_NAME", "com.yourapp.lingi")
+MONTHLY_PRICE = os.environ.get("MONTHLY_PRICE", "1.00")
+YEARLY_PRICE  = os.environ.get("YEARLY_PRICE", "10.00")
 FRONTEND_URL      = os.environ.get("FRONTEND_URL", "http://localhost:5000")
 SUPABASE_URL      = os.environ.get("SUPABASE_URL", "")
 SUPABASE_ANON     = os.environ.get("SUPABASE_ANON_KEY", "")
 SUPABASE_SERVICE  = os.environ.get("SUPABASE_SERVICE_KEY", "")
 
-gemini  = genai.Client(api_key=GEMINI_KEY)
+gemini  = genai.Client(api_key=GEMINI_API_KEY)
 MODEL = "gemini-3.5-flash"
 
 sessions     = {}
@@ -37,6 +37,35 @@ LANGUAGES = {
     "ms":"Malay","tl":"Filipino","zh":"Chinese","ja":"Japanese","ko":"Korean",
     "de":"German","it":"Italian","nl":"Dutch","pl":"Polish",
 }
+
+# ── Google Play Billing helper ─────────────────────────────────────────────
+def get_android_publisher():
+    if not GOOGLE_SERVICE_ACCOUNT_FILE or not os.path.exists(GOOGLE_SERVICE_ACCOUNT_FILE):
+        return None
+    credentials = service_account.Credentials.from_service_account_file(
+        GOOGLE_SERVICE_ACCOUNT_FILE,
+        scopes=["https://www.googleapis.com/auth/androidpublisher"]
+    )
+    return build("androidpublisher", "v3", credentials=credentials)
+
+def verify_google_play_subscription(package_name, subscription_id, purchase_token):
+    """Verify subscription with Google Play and return (valid, expiry_time_millis, error)."""
+    publisher = get_android_publisher()
+    if not publisher:
+        return False, None, "Google service account not configured"
+    try:
+        resp = publisher.purchases().subscriptions().get(
+            packageName=package_name,
+            subscriptionId=subscription_id,
+            purchaseToken=purchase_token
+        ).execute()
+        purchase_state = resp.get("purchaseState", -1)
+        if purchase_state != 0:  # 0 = purchased
+            return False, None, "Purchase not active"
+        expiry_time_millis = resp.get("expiryTimeMillis")
+        return True, expiry_time_millis, None
+    except Exception as e:
+        return False, None, str(e)
 
 # ── Supabase DB helpers ────────────────────────────────────────────────────
 def sb(method, path, body=None, token=None, upsert=False):
@@ -91,11 +120,18 @@ def get_progress(user_id):
 def mark_done(user_id, scenario_id):
     sb("POST", "/user_progress", {"user_id": user_id, "scenario_id": scenario_id, "done": True}, upsert=True)
 
-def set_premium(user_id, plan):
-    days   = 366 if plan == "yearly" else 32
-    expiry = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
-    sb("POST", "/user_stats", {"user_id": user_id, "is_premium": True,
-                               "premium_expires_at": expiry}, upsert=True)
+def set_premium_with_expiry(user_id, plan, expiry_time_millis=None):
+    """Set premium with Google Play expiry time if provided."""
+    if expiry_time_millis:
+        expiry = datetime.fromtimestamp(expiry_time_millis / 1000, tz=timezone.utc).isoformat()
+    else:
+        days   = 366 if plan == "yearly" else 32
+        expiry = (datetime.now(timezone.utc) + timedelta(days=days)).isoformat()
+    sb("POST", "/user_stats", {
+        "user_id": user_id,
+        "is_premium": True,
+        "premium_expires_at": expiry
+    }, upsert=True)
 
 def is_premium(user_id):
     s = get_stats(user_id)
@@ -156,11 +192,11 @@ Write in plain flowing paragraphs. No bullet points. No numbered lists. No line 
 def clean_for_speech(text):
     """Remove formatting that sounds bad when spoken aloud."""
     import re
-    text = text.replace('\n', ' ').replace('\r', ' ')
+    text = text.replace('\\n', ' ').replace('\\r', ' ')
     text = text.replace('**', '').replace('*', '')
     text = text.replace('#', '').replace('_', '')
     text = text.replace('`', '').replace('~', '')
-    text = re.sub(r'\s+', ' ', text)
+    text = re.sub(r'\\s+', ' ', text)
     return text.strip()
 
 def translate_prompt(from_lang, to_lang):
@@ -190,8 +226,11 @@ def health():
 @app.route("/config")
 def config():
     return jsonify({
-        "monthly_price": LSQ_MONTHLY_PRICE,
-        "yearly_price":  LSQ_YEARLY_PRICE,
+        "monthly_price": MONTHLY_PRICE,
+        "yearly_price":  YEARLY_PRICE,
+        "google_package_name": GOOGLE_PACKAGE_NAME,
+        "monthly_subscription_id": os.environ.get("GOOGLE_MONTHLY_SUBSCRIPTION_ID", "lingi_monthly_gb"),
+        "yearly_subscription_id": os.environ.get("GOOGLE_YEARLY_SUBSCRIPTION_ID", "lingi_yearly_gb"),
     })
 
 # ── Auth routes (proxy to Supabase) ───────────────────────────────────────
@@ -205,7 +244,6 @@ def signup():
     })
     if code not in (200, 201):
         return jsonify({"error": result.get("msg", result.get("message", "Signup failed"))}), 400
-    # Create user_stats row
     if result.get("user"):
         uid = result["user"]["id"]
         sb("POST", "/user_stats", {"user_id": uid, "streak": 0})
@@ -350,7 +388,7 @@ def delete_session(sid):
 def translate():
     if not rate_ok(request.remote_addr):
         return jsonify({"error": "Too many requests"}), 429
-    data      = request.json
+    dataया      = request.json
     from_lang = LANGUAGES.get(data.get("from_lang_code", ""), data.get("from_lang_code", ""))
     to_lang   = LANGUAGES.get(data.get("to_lang_code", ""), data.get("to_lang_code", ""))
     try:
@@ -365,97 +403,50 @@ def translate():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-# ── Payment (LemonSqueezy) ────────────────────────────────────────────────
-COUPONS = {
-    "JUDGE2026": {"discount": 100, "plan": "yearly"},  # 100% free — judges
-}
-
-@app.route("/payment/coupon", methods=["POST"])
+# ── Payment (Google Play Billing only) ────────────────────────────────────
+@app.route("/payment/play-subscribe", methods=["POST"])
 @require_auth
-def apply_coupon():
-    code = (request.json.get("code") or "").strip().upper()
-    if code not in COUPONS:
-        return jsonify({"error": "Invalid or expired coupon code."}), 400
-    c = COUPONS[code]
-    if c["discount"] == 100:
-        set_premium(request.user["id"], c["plan"])
-        log_event("/payment/coupon", f"✅ OK — {code}", request.user.get("email","")[:20])
-        return jsonify({"premium": True, "message": "Premium activated! Enjoy Lingi Coach."})
-    return jsonify({"discount": c["discount"]})
-
-@app.route("/payment/checkout", methods=["POST"])
-@require_auth
-def create_checkout():
-    data      = request.json
-    plan      = data.get("plan", "monthly")
-    variant   = LSQ_YEARLY_VARIANT if plan == "yearly" else LSQ_MONTHLY_VARIANT
-    user_id   = request.user["id"]
-    email     = request.user.get("email", "")
-    app_url   = os.environ.get("FRONTEND_URL", request.host_url.rstrip("/"))
-    try:
-        resp = httpx.post(
-            "https://api.lemonsqueezy.com/v1/checkouts",
-            headers={"Authorization": f"Bearer {LSQ_API_KEY}", "Accept": "application/vnd.api+json",
-                     "Content-Type": "application/vnd.api+json"},
-            json={"data": {"type": "checkouts", "attributes": {
-                "checkout_data": {"email": email, "custom": {"user_id": user_id, "plan": plan}},
-                "product_options": {"redirect_url": f"{app_url}/?payment=success",
-                                    "receipt_link_url": f"{app_url}/?payment=success"},
-                "checkout_options": {"button_color": "#1B7E8C"}
-            }, "relationships": {
-                "store":   {"data": {"type": "stores",   "id": os.environ.get("LSQ_STORE_ID","1")}},
-                "variant": {"data": {"type": "variants", "id": variant}}
-            }}},
-            timeout=15
-        )
-        resp.raise_for_status()
-        url = resp.json()["data"]["attributes"]["url"]
-        return jsonify({"checkout_url": url})
-    except Exception as e:
-        return jsonify({"error": str(e)}), 500
-
-@app.route("/payment/gpay", methods=["POST"])
-@require_auth
-def gpay_payment():
-    """Receive Google Pay token and activate premium."""
+def play_subscribe():
+    """
+    Receive Google Play subscription purchase from Android app:
+    {
+      "package_name": "com.yourapp.lingi",
+      "subscription_id": "lingi_monthly_gb",
+      "purchase_token": "..."
+    }
+    Verify with Google Play and activate premium.
+    """
     data = request.json
-    plan = data.get("plan", "monthly")
-    token = data.get("token", {})
+    package_name = data.get("package_name", GOOGLE_PACKAGE_NAME)
+    subscription_id = data.get("subscription_id", "")
+    purchase_token = data.get("purchase_token", "")
     user_id = request.user["id"]
-    # TODO: verify token with your payment processor (NatWest Tyl, Stripe, etc.)
-    # For now: log and activate — replace with actual processor verification
-    log_event("/payment/gpay", f"✅ GPay received plan={plan}", user_id[:8])
-    set_premium(user_id, plan)
-    return jsonify({"ok": True})
 
-@app.route("/payment/manual", methods=["POST"])
-@require_auth
-def manual_payment():
-    """User clicks 'I have paid' — logs the request for manual activation."""
-    email = request.json.get("email", "")
-    user_id = request.user["id"]
-    log_event("/payment/manual", f"⏳ PENDING manual activation — {email}", user_id[:8])
-    # Auto-activate immediately for now (trust-based)
-    # In production: verify the NatWest payment manually then call set_premium
-    set_premium(user_id, "monthly")
-    log_event("/payment/manual", f"✅ Auto-activated — {email}", user_id[:8])
-    return jsonify({"ok": True})
+    if not subscription_id or not purchase_token:
+        return jsonify({"error": "Missing subscription_id or purchase_token"}), 400
 
-@app.route("/payment/webhook", methods=["POST"])
-def lsq_webhook():
-    payload   = request.get_data()
-    sig       = request.headers.get("X-Signature", "")
-    expected  = hmac.new(LSQ_WEBHOOK_SECRET.encode(), payload, hashlib.sha256).hexdigest()
-    if not hmac.compare_digest(expected, sig):
-        return jsonify({"error": "Invalid signature"}), 400
-    event = request.json
-    if event.get("meta", {}).get("event_name") == "order_created":
-        custom  = event.get("meta", {}).get("custom_data", {})
-        user_id = custom.get("user_id")
-        plan    = custom.get("plan", "monthly")
-        if user_id:
-            set_premium(user_id, plan)
-            log_event("/payment/webhook", f"✅ OK — order_created plan={plan}", user_id[:8])
+    valid, expiry_time_millis, error = verify_google_play_subscription(
+        package_name, subscription_id, purchase_token
+    )
+
+    if not valid:
+        return jsonify({"error": error or "Subscription verification failed"}), 402
+
+    plan = "yearly" if "yearly" in subscription_id else "monthly"
+    set_premium_with_expiry(user_id, plan, expiry_time_millis)
+
+    return jsonify({"ok": True, "premium": True, "plan": plan})
+
+@app.route("/payment/play-webhook", methods=["POST"])
+def play_webhook():
+    """
+    Handle Google Play Developer Notifications (Pub/Sub webhook).
+    Google sends real-time updates for renewals, cancellations, refunds, etc.
+    """
+    data = request.json
+    # Google sends a message in a specific format; for simplicity, log for now.
+    # In production: parse subscriptionNotification, update premium status.
+    log_event("/payment/play-webhook", f"✅ Received Google Play notification", "system")
     return jsonify({"received": True})
 
 if __name__ == "__main__":
@@ -468,10 +459,9 @@ from datetime import datetime, timezone
 
 ADMIN_KEY = os.environ.get("ADMIN_KEY", "changeme-admin-key")
 
-# In-memory logs (last 200 events)
 execution_log = []
 api_counters  = {"gemini_calls": 0, "translate_calls": 0, "sessions_started": 0,
-                 "sessions_active": 0, "errors": 0}
+                 "sessions_active": 0, "errors": 0, "play_subscriptions": 0}
 
 def log_event(event_type, detail, user_id=None):
     execution_log.append({
@@ -483,11 +473,6 @@ def log_event(event_type, detail, user_id=None):
     if len(execution_log) > 200:
         execution_log.pop(0)
 
-# Patch start_session and chat_message to emit logs
-_orig_start  = app.view_functions.get("start_session")
-_orig_chat   = app.view_functions.get("chat_message")
-_orig_trans  = app.view_functions.get("translate")
-
 @app.before_request
 def track_request():
     if request.path == "/session/start" and request.method == "POST":
@@ -498,6 +483,8 @@ def track_request():
     elif request.path == "/translate" and request.method == "POST":
         api_counters["translate_calls"] += 1
         api_counters["gemini_calls"] += 1
+    elif request.path == "/payment/play-subscribe" and request.method == "POST":
+        api_counters["play_subscriptions"] += 1
 
 @app.after_request
 def log_response(resp):
@@ -526,7 +513,6 @@ def admin_data():
     if request.args.get("key", "") != ADMIN_KEY:
         return jsonify({"error": "Unauthorised"}), 401
 
-    # Get user counts from Supabase
     total_users  = 0
     premium_users = 0
     total_done   = 0
@@ -545,8 +531,12 @@ def admin_data():
         pass
 
     return jsonify({
-        "counters": {**api_counters, "total_users": total_users,
-                     "premium_users": premium_users, "scenarios_completed": total_done},
+        "counters": {
+            **api_counters,
+            "total_users": total_users,
+            "premium_users": premium_users,
+            "scenarios_completed": total_done
+        },
         "sessions": [
             {"id": k[:8]+"...", "lang": v.get("lang","?"),
              "msgs": v.get("count",0),
