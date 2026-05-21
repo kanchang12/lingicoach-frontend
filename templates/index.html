@@ -879,7 +879,7 @@ function speakText(text) {
     // ONE utterance — no splits, no gaps
     const nativeChars = (clean.match(/[^\x00-\x7F]/g) || []).length;
     const useNative = nativeVoice && (nativeChars / clean.length > 0.3);
-    const utt = new SpeechSynthesisUtterance(clean);
+    const utt = new SpeechSynthesisUtterance(clean.replace(/[\n\r]+/g, " ").replace(/\s+/g, " ").trim());
     utt.rate = 0.88;
     if (useNative) { utt.voice = nativeVoice; utt.lang = nativeLang; }
     else { if (enVoice) utt.voice = enVoice; utt.lang = 'en-GB'; }
