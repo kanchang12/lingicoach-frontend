@@ -153,6 +153,16 @@ Never ask for personal information.
 ## FORMATTING
 Write in plain flowing paragraphs. No bullet points. No numbered lists. No line breaks within sentences. No markdown. Each response must be continuous text that reads naturally when spoken aloud."""
 
+def clean_for_speech(text):
+    """Remove formatting that sounds bad when spoken aloud."""
+    import re
+    text = text.replace('\n', ' ').replace('\r', ' ')
+    text = text.replace('**', '').replace('*', '')
+    text = text.replace('#', '').replace('_', '')
+    text = text.replace('`', '').replace('~', '')
+    text = re.sub(r'\s+', ' ', text)
+    return text.strip()
+
 def translate_prompt(from_lang, to_lang):
     return f"You are a professional interpreter. Translate between {from_lang} and {to_lang}. Return ONLY the translation, no labels or preamble."
 
@@ -298,7 +308,7 @@ def start_session():
         )
         resp = chat.send_message("Begin the session now.")
         sessions[sid] = {"chat": chat, "last": time.time(), "count": 1}
-        msg = " ".join(resp.text.split())
+        msg = clean_for_speech(resp.text)
         return jsonify({"session_id": sid, "message": msg})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -323,7 +333,7 @@ def chat_message():
         resp = s["chat"].send_message(msg)
         s["last"] = time.time()
         s["count"] += 1
-        clean_msg = " ".join(resp.text.split())
+        clean_msg = clean_for_speech(resp.text)
         return jsonify({"session_id": sid, "message": clean_msg})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
