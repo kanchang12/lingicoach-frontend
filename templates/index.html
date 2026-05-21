@@ -863,43 +863,36 @@ let ttsEnabled = true;
 
 function speakText(text) {
   if (!ttsEnabled || !window.speechSynthesis) return;
+  
   window.speechSynthesis.cancel();
   
-  // 1. Clean formatting
+  // 1. Remove markdown
   let clean = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
   
-  // 2. Remove all punctuation
+  // 2. Remove all punctuation to prevent pausing/stuttering
   clean = clean.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
   
-  // 3. Normalize spaces
+  // 3. Remove non-English characters (keep English letters, numbers, and spaces)
+  // This effectively skips regional language parts
+  clean = clean.replace(/[^\x00-\x7F]/g, "");
+  
+  // 4. Clean up extra whitespace
   clean = clean.replace(/\s+/g, " ").trim();
+  
   if (!clean) return;
 
-  // 4. Split into chunks of 4-5 words each to force a smooth cadence
-  const words = clean.split(" ");
-  const chunks = [];
-  for (let i = 0; i < words.length; i += 4) {
-    chunks.push(words.slice(i, i + 4).join(" "));
-  }
-
-  const voices = window.speechSynthesis.getVoices();
-  const nativeLang = currentLang ? (currentLang.s || currentLang.c) : null;
+  // 5. Create a single English-only utterance
+  const utt = new SpeechSynthesisUtterance(clean);
   
-  // Helper to create the utterance for a chunk
-  chunks.forEach((chunk) => {
-    const utt = new SpeechSynthesisUtterance(chunk);
-    utt.rate = 0.95; 
-    utt.pitch = 1.0;
-    
-    // Set voice
-    const nativeVoice = nativeLang ? (voices.find(v => v.lang === nativeLang)) : null;
-    const enVoice = voices.find(v => v.lang.startsWith('en'));
-    
-    utt.voice = nativeVoice || enVoice;
-    utt.lang = nativeLang || 'en-GB';
-    
-    window.speechSynthesis.speak(utt);
-  });
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+  
+  utt.voice = enVoice;
+  utt.lang = 'en-GB';
+  utt.rate = 0.95;
+  utt.pitch = 1.0;
+
+  window.speechSynthesis.speak(utt);
 }
 function bubble(role, text, typing) {
   const box = document.getElementById('msgs');
