@@ -400,10 +400,6 @@ def play_webhook():
     log_event("/payment/play-webhook", "Received Google Play notification", "system")
     return jsonify({"received": True})
 
-if __name__ == "__main__":
-    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
-
-
 # ── ADMIN ──────────────────────────────────────────────────────────────────
 ADMIN_KEY     = os.environ.get("ADMIN_KEY", "changeme-admin-key")
 execution_log = []
@@ -468,3 +464,6 @@ def admin_data():
         "log":    list(reversed(execution_log[-50:])),
         "uptime": datetime.now(timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
     })
+
+if __name__ == "__main__":
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)), debug=False)
