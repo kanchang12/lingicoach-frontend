@@ -4,213 +4,262 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"/>
 <meta name="theme-color" content="#1B7E8C"/>
+<meta name="mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
-<meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <meta name="apple-mobile-web-app-title" content="Lingi Coach"/>
 <link rel="manifest" href="/manifest.json"/>
-<link rel="apple-touch-icon" href="/icons/icon-192.png"/>
-<link rel="icon" href="/icons/icon-192.png"/>
+<link rel="apple-touch-icon" href="/static/icons/icon-192.png"/>
+<link rel="icon" href="/static/icons/icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
 <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800;900&display=swap" rel="stylesheet"/>
 <title>Lingi Coach</title>
 <style>
-:root{--bg:#F5F1EC;--surface:#FFF;--surface2:#EDE9E3;--primary:#1B7E8C;--primary-d:#145F6A;--accent:#E8941A;--accent-lt:#FEF3DC;--text:#1A1A1A;--text-md:#4A4A4A;--text-lt:#8A8880;--border:#DDD9D2;--ai-bubble:#EDE9E3;--r:18px;--r-sm:12px}
+:root{--bg:#F5F1EC;--sur:#fff;--sur2:#EDE9E3;--pri:#1B7E8C;--prd:#145F6A;--acc:#E8941A;--acl:#FEF3DC;--txt:#1A1A1A;--txm:#4A4A4A;--txl:#8A8880;--bdr:#DDD9D2;--aib:#EDE9E3;--r:18px;--rs:12px}
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 html,body{height:100%;overflow:hidden;background:var(--bg)}
-body{font-family:'Nunito',sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+body{font-family:'Nunito',sans-serif;color:var(--txt);-webkit-font-smoothing:antialiased;overscroll-behavior:none}
 #app{height:100%;display:flex;flex-direction:column;max-width:480px;margin:0 auto;overflow:hidden;position:relative}
-.sc{display:none;flex-direction:column;height:100%;overflow:hidden;background:var(--bg)}
-.sc.on{display:flex}
-.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
-.scroll::-webkit-scrollbar{display:none}
-.hdr{background:var(--primary);padding:env(safe-area-inset-top,16px) 14px 14px;flex-shrink:0;display:flex;align-items:center;gap:10px}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;border-radius:var(--r-sm);font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;cursor:pointer;border:none;outline:none;-webkit-tap-highlight-color:transparent;width:100%;transition:opacity .12s}
+.sc{display:none;flex-direction:column;height:100%;overflow:hidden;background:var(--bg)}.sc.on{display:flex}
+.scroll{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}.scroll::-webkit-scrollbar{display:none}
+.hdr{background:var(--pri);padding:env(safe-area-inset-top,14px) 14px 13px;flex-shrink:0;display:flex;align-items:center;gap:10px}
+.htxt{color:#fff;font-weight:900;font-size:16px}.hsub{color:rgba(255,255,255,.65);font-size:11px;margin-top:1px}
+.back{background:rgba(255,255,255,.15);border:none;border-radius:10px;width:34px;height:34px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:13px 18px;border-radius:var(--rs);font-family:'Nunito',sans-serif;font-weight:700;font-size:15px;cursor:pointer;border:none;outline:none;-webkit-tap-highlight-color:transparent;width:100%}
 .btn:active:not(:disabled){opacity:.8}.btn:disabled{opacity:.45;cursor:not-allowed}
-.btn-p{background:var(--primary);color:#fff}.btn-a{background:var(--accent);color:#fff}
-.ai-strip{background:var(--accent-lt);border-bottom:1px solid #F0D080;padding:5px 14px;font-size:10px;color:#7A4D00;font-weight:700;text-align:center;flex-shrink:0}
-.inp{width:100%;padding:11px 13px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--bg);font-size:14px;color:var(--text);outline:none;font-family:'Nunito',sans-serif}
-.inp:focus{border-color:var(--primary)}
+.bp{background:var(--pri);color:#fff}.ba{background:var(--acc);color:#fff}.bg{background:transparent;color:var(--pri);border:2px solid var(--pri)}
+.inp{width:100%;padding:11px 13px;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--bg);font-size:14px;color:var(--txt);outline:none;font-family:'Nunito',sans-serif}.inp:focus{border-color:var(--pri)}
+.lbl{font-size:12px;font-weight:700;color:var(--txm);display:block;margin-bottom:4px}
+.ais{background:var(--acl);border-bottom:1px solid #F0D080;padding:5px 14px;font-size:10px;color:#7A4D00;font-weight:700;text-align:center;flex-shrink:0}
 .bb{max-width:78%;padding:10px 13px;font-size:14px;line-height:1.55;font-weight:500}
-.bb.ai{border-radius:16px 16px 16px 4px;background:var(--ai-bubble);color:var(--text)}
-.bb.usr{border-radius:16px 16px 4px 16px;background:var(--primary);color:#fff}
-.dots span{width:7px;height:7px;border-radius:50%;background:var(--text-lt);display:inline-block;animation:bnc 1.1s infinite}
+.bb.ai{border-radius:16px 16px 16px 4px;background:var(--aib)}.bb.me{border-radius:16px 16px 4px 16px;background:var(--pri);color:#fff}
+.dots span{width:7px;height:7px;border-radius:50%;background:var(--txl);display:inline-block;animation:bnc 1.1s infinite}
 .dots span:nth-child(2){animation-delay:.18s}.dots span:nth-child(3){animation-delay:.36s}
 @keyframes bnc{0%,80%,100%{transform:translateY(0)}40%{transform:translateY(-5px)}}
-.back{background:rgba(255,255,255,.15);border:none;border-radius:10px;width:34px;height:34px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:none;align-items:flex-end;justify-content:center}
-.ov.on{display:flex}
-.ovs{background:var(--surface);border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,16px)}
+.ov{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:999;display:none;align-items:flex-end;justify-content:center}.ov.on{display:flex}
+.ovs{background:var(--sur);border-radius:22px 22px 0 0;width:100%;max-width:480px;max-height:90vh;overflow-y:auto;padding-bottom:env(safe-area-inset-bottom,16px)}
+.err{background:#FEE2E2;border:1px solid #FCA5A5;border-radius:var(--rs);padding:9px 12px;font-size:12px;color:#991B1B;margin-bottom:8px;text-align:center}
+.ok{background:#DCFCE7;border:1px solid #86EFAC;border-radius:var(--rs);padding:9px 12px;font-size:12px;color:#166534;margin-bottom:8px;text-align:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .6s linear infinite}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(192,57,43,.3)}50%{box-shadow:0 0 0 7px rgba(192,57,43,0)}}
 </style>
 </head>
 <body>
 <div id="app">
 
+<!-- LOADING -->
 <div id="s-load" class="sc on">
-  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--primary)">
-    <img src="/icons/icon-192.png" style="width:80px;height:80px;border-radius:20px;margin-bottom:14px" alt=""/>
+  <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;background:var(--pri)">
+    <img src="/static/icons/icon-192.png" style="width:80px;height:80px;border-radius:20px;margin-bottom:14px" alt=""/>
     <div style="color:#fff;font-weight:900;font-size:24px">Lingi Coach</div>
+    <div style="color:rgba(255,255,255,.5);font-size:13px;margin-top:8px" id="load-msg">Loading...</div>
   </div>
 </div>
 
-<div id="s-consent" class="sc">
-  <div style="background:var(--primary);padding:env(safe-area-inset-top,22px) 18px 22px;text-align:center;flex-shrink:0">
-    <img src="/icons/icon-192.png" style="width:60px;height:60px;border-radius:14px;margin-bottom:10px" alt=""/>
+<!-- AUTH -->
+<div id="s-auth" class="sc">
+  <div style="background:var(--pri);padding:env(safe-area-inset-top,28px) 18px 26px;text-align:center;flex-shrink:0">
+    <img src="/static/icons/icon-192.png" style="width:62px;height:62px;border-radius:16px;margin-bottom:10px" alt=""/>
     <div style="color:#fff;font-weight:900;font-size:21px">Lingi Coach</div>
     <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:4px">AI English Coach · 300 Real-life Scenarios</div>
-    <div style="margin-top:11px;display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,.15);border-radius:99px;padding:4px 12px;font-size:11px;color:rgba(255,255,255,.9);font-weight:700">🤖 Google Gemini AI</div>
   </div>
-  <div class="scroll" style="padding:16px 15px 0">
-    <p style="font-size:12px;color:var(--text-lt);margin-bottom:13px;line-height:1.6">Please read and confirm before you start.</p>
-    <div id="chks"></div>
-    <div style="background:var(--accent-lt);border:1px solid #F0D080;border-radius:var(--r-sm);padding:9px 12px;margin-bottom:16px;font-size:11px;color:#7A4D00">
-      🔒 LOVEUAD LTD · Co. 16838046 · UK · <span style="color:var(--primary);font-weight:700;cursor:pointer" onclick="nav('s-privacy',true)">Privacy Policy</span>
+  <div class="scroll" style="padding:18px 16px">
+    <div style="display:flex;background:var(--sur2);border-radius:var(--rs);padding:3px;margin-bottom:16px">
+      <button id="t-li" onclick="authTab('login')" style="flex:1;padding:8px;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:var(--pri);color:#fff">Log in</button>
+      <button id="t-su" onclick="authTab('signup')" style="flex:1;padding:8px;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:transparent;color:var(--txl)">Sign up</button>
     </div>
-  </div>
-  <div style="padding:12px 15px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border)">
-    <button class="btn btn-p" id="con-btn" disabled onclick="acceptConsent()">Accept &amp; Continue →</button>
+    <div id="auth-msg"></div>
+    <div id="name-row" style="display:none;margin-bottom:10px"><label class="lbl">Your name</label><input class="inp" id="a-name" placeholder="e.g. Priya" type="text"/></div>
+    <div style="margin-bottom:10px"><label class="lbl">Email</label><input class="inp" id="a-email" placeholder="you@example.com" type="email"/></div>
+    <div style="margin-bottom:16px"><label class="lbl">Password</label><input class="inp" id="a-pass" placeholder="Min. 6 characters" type="password" onkeydown="if(event.key==='Enter')doAuth()"/></div>
+    <button class="btn bp" id="auth-btn" onclick="doAuth()">Log in</button>
+    <div id="forgot-row" style="text-align:center;margin-top:11px">
+      <span onclick="doForgot()" style="font-size:12px;color:var(--pri);cursor:pointer;font-weight:700">Forgot password?</span>
+    </div>
+    <div style="margin-top:18px;padding:11px;background:var(--acl);border-radius:var(--rs);font-size:11px;color:#7A4D00;line-height:1.7">🔒 LOVEUAD LTD · Co. 16838046 · UK · 🤖 Google Gemini AI</div>
   </div>
 </div>
 
+<!-- CONSENT -->
+<div id="s-consent" class="sc">
+  <div style="background:var(--pri);padding:env(safe-area-inset-top,18px) 16px 18px;flex-shrink:0;text-align:center">
+    <div class="htxt">Before you start</div><div class="hsub">One-time confirmation</div>
+  </div>
+  <div class="scroll" style="padding:14px 15px 0"><div id="chks"></div></div>
+  <div style="padding:11px 15px;padding-bottom:calc(11px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bdr)">
+    <button class="btn bp" id="con-btn" disabled onclick="acceptConsent()">Accept &amp; Continue →</button>
+  </div>
+</div>
+
+<!-- LANGUAGE -->
 <div id="s-lang" class="sc">
-  <div style="background:var(--primary);padding:env(safe-area-inset-top,18px) 14px 14px;flex-shrink:0">
-    <div style="color:#fff;font-weight:900;font-size:17px">Choose your language</div>
-    <div style="color:rgba(255,255,255,.65);font-size:11px;margin-top:2px">The coach speaks to you in this language</div>
+  <div style="background:var(--pri);padding:env(safe-area-inset-top,16px) 14px 13px;flex-shrink:0">
+    <div class="htxt">Choose your language</div>
+    <div class="hsub">The coach speaks to you in this language</div>
     <input class="inp" id="lang-q" placeholder="Search..." style="margin-top:10px;background:rgba(255,255,255,.9)" oninput="renderLangs()"/>
   </div>
   <div class="scroll"><div id="lang-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:12px"></div></div>
-  <div style="padding:11px 14px;padding-bottom:calc(11px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--border)">
-    <button class="btn btn-p" id="lang-btn" disabled onclick="confirmLang()">Select a language</button>
+  <div style="padding:11px 14px;padding-bottom:calc(11px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bdr)">
+    <button class="btn bp" id="lang-btn" disabled onclick="confirmLang()">Select a language</button>
   </div>
 </div>
 
+<!-- DASHBOARD -->
 <div id="s-dash" class="sc">
-  <div style="background:var(--primary);padding:env(safe-area-inset-top,14px) 14px 14px;flex-shrink:0">
+  <div style="background:var(--pri);padding:env(safe-area-inset-top,13px) 14px 13px;flex-shrink:0">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:11px">
-      <img src="/icons/icon-192.png" style="width:33px;height:33px;border-radius:9px" alt=""/>
-      <div><div style="color:#fff;font-weight:900;font-size:15px">Lingi Coach</div><div id="dlbl" style="color:rgba(255,255,255,.65);font-size:11px"></div></div>
+      <img src="/static/icons/icon-192.png" style="width:33px;height:33px;border-radius:9px" alt=""/>
+      <div><div style="color:#fff;font-weight:900;font-size:15px">Lingi Coach</div><div id="d-lbl" style="color:rgba(255,255,255,.65);font-size:11px"></div></div>
       <div style="margin-left:auto;display:flex;gap:7px;align-items:center">
-        <span id="probadge" style="display:none;background:#F6A623;border-radius:99px;padding:3px 9px;font-size:10px;color:#fff;font-weight:700">⭐ Pro</span>
-        <button onclick="nav('s-settings')" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;width:33px;height:33px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center">⚙️</button>
+        <span id="pro-badge" style="display:none;background:#F6A623;border-radius:99px;padding:3px 9px;font-size:10px;color:#fff;font-weight:700">⭐ Pro</span>
+        <button onclick="go('s-settings')" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;width:33px;height:33px;cursor:pointer;color:#fff;font-size:15px;display:flex;align-items:center;justify-content:center">⚙️</button>
       </div>
     </div>
     <div style="display:flex;gap:7px">
-      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:9px;padding:7px 9px;text-align:center"><div style="color:#fff;font-weight:800;font-size:16px" id="ds">🔥 0</div><div style="color:rgba(255,255,255,.65);font-size:9px;margin-top:1px">Streak</div></div>
-      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:9px;padding:7px 9px;text-align:center"><div style="color:#fff;font-weight:800;font-size:16px" id="dd">0/300</div><div style="color:rgba(255,255,255,.65);font-size:9px;margin-top:1px">Done</div></div>
-      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:9px;padding:7px 9px;text-align:center"><div style="font-weight:800;font-size:16px" id="dt" style="color:#fff">3:00</div><div style="color:rgba(255,255,255,.65);font-size:9px;margin-top:1px" id="dtl">Free left</div></div>
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:9px;padding:7px 9px;text-align:center"><div style="color:#fff;font-weight:800;font-size:16px" id="d-str">🔥 0</div><div style="color:rgba(255,255,255,.65);font-size:9px;margin-top:1px">Streak</div></div>
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:9px;padding:7px 9px;text-align:center"><div style="color:#fff;font-weight:800;font-size:16px" id="d-don">0/300</div><div style="color:rgba(255,255,255,.65);font-size:9px;margin-top:1px">Done</div></div>
+      <div style="flex:1;background:rgba(255,255,255,.12);border-radius:9px;padding:7px 9px;text-align:center"><div style="font-weight:800;font-size:16px;color:#fff" id="d-tim">3:00</div><div style="color:rgba(255,255,255,.65);font-size:9px;margin-top:1px" id="d-tl">Free left</div></div>
     </div>
   </div>
-  <div class="ai-strip">🤖 AI-powered · Not a human coach · EU AI Act compliant</div>
-  <div style="padding:10px 13px 4px;flex-shrink:0">
-    <button class="btn btn-a" onclick="nav('s-interp')" style="display:flex;justify-content:flex-start;padding:11px 13px;gap:9px">
+  <div class="ais">🤖 AI-powered · Not a human coach · EU AI Act compliant</div>
+  <div style="padding:9px 13px 4px;flex-shrink:0">
+    <button class="btn ba" onclick="go('s-interp')" style="display:flex;justify-content:flex-start;padding:11px 13px;gap:9px;align-items:center">
       <span style="font-size:19px">🌐</span>
       <div style="text-align:left"><div style="font-size:14px">Live Interpreter Mode</div><div style="font-size:10px;opacity:.85;font-weight:600">Two-way translation between any languages</div></div>
       <span style="margin-left:auto">→</span>
     </button>
   </div>
-  <div style="padding:8px 14px 3px;flex-shrink:0">
-    <div style="font-weight:800;font-size:14px">Practice Scenarios</div>
-    <div style="font-size:11px;color:var(--text-lt)">300 situations · 15 categories</div>
-  </div>
-  <div class="scroll"><div id="cat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:8px 13px 13px"></div></div>
+  <div style="padding:7px 14px 3px;flex-shrink:0"><div style="font-weight:800;font-size:14px">Practice Scenarios</div><div style="font-size:11px;color:var(--txl)">300 situations · 15 categories</div></div>
+  <div class="scroll"><div id="cat-grid" style="display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:8px 13px 14px"></div></div>
 </div>
 
+<!-- CATEGORY -->
 <div id="s-cat" class="sc">
-  <div class="hdr">
-    <button class="back" onclick="nav('s-dash')">←</button>
-    <div><div style="color:#fff;font-weight:900;font-size:16px" id="cat-ttl"></div><div style="color:rgba(255,255,255,.65);font-size:11px" id="cat-sub"></div></div>
-  </div>
+  <div class="hdr"><button class="back" onclick="go('s-dash')">←</button><div><div class="htxt" id="cat-ttl"></div><div class="hsub" id="cat-sub"></div></div></div>
   <div class="scroll" style="padding:10px 13px"><div id="sc-list"></div></div>
 </div>
 
-<div id="s-chat" class="sc">
-  <div style="background:var(--primary);padding:env(safe-area-inset-top,13px) 13px 11px;flex-shrink:0">
-    <div style="display:flex;align-items:center;gap:9px">
-      <button class="back" onclick="endChat()">←</button>
-      <div style="flex:1;min-width:0">
-        <div style="color:#fff;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="ch-title"></div>
-        <div style="color:rgba(255,255,255,.65);font-size:11px" id="ch-sub"></div>
-      </div>
-      <div id="ch-timer" style="background:rgba(255,255,255,.15);border-radius:99px;padding:3px 9px;font-size:11px;color:#fff;font-weight:700;flex-shrink:0">⏱ 3:00</div>
-      <button onclick="restartChat()" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;width:31px;height:31px;cursor:pointer;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">↺</button>
+<!-- LISTEN (Step 1 of 3) -->
+<div id="s-listen" class="sc">
+  <div class="hdr">
+    <button class="back" onclick="go('s-cat')">←</button>
+    <div>
+      <div class="htxt" id="ls-ttl"></div>
+      <div class="hsub">Step 1 of 3 · Listen to a model conversation</div>
     </div>
   </div>
-  <div class="ai-strip">🤖 AI Coach · Speak English · Corrections in your language</div>
-  <div class="scroll" id="msgs" style="padding:10px 10px"></div>
-  <div style="padding:8px 9px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--surface);border-top:1px solid var(--border);display:flex;align-items:flex-end;gap:6px;flex-shrink:0">
-    <button id="mic" onclick="toggleMic()" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--surface2);color:var(--primary);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">🎤</button>
-    <textarea id="cin" placeholder="Type your English answer..." rows="1" class="inp" style="flex:1;resize:none;line-height:1.4;max-height:88px;overflow-y:auto;padding:10px 11px" oninput="resize(this)" onkeydown="kd(event)"></textarea>
-    <button id="snd" onclick="doSend()" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--surface2);color:var(--text-lt);font-size:16px;cursor:default;flex-shrink:0;display:flex;align-items:center;justify-content:center">➤</button>
+  <div style="padding:7px 13px;background:var(--acl);border-bottom:1px solid #F0D080;font-size:11px;color:#7A4D00;font-weight:700;flex-shrink:0;text-align:center">
+    🎧 Hear how a native speaker handles this situation before you try
+  </div>
+  <div class="scroll" id="ls-conv" style="padding:12px 13px"></div>
+  <div style="padding:10px 13px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bdr);display:flex;gap:8px;flex-shrink:0">
+    <button id="ls-play-btn" onclick="playAllConv()" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1.5px solid var(--pri);background:transparent;color:var(--pri);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">▶ Play All</button>
+    <button onclick="go('s-learn')" style="flex:2;padding:12px;border-radius:var(--rs);border:none;background:var(--pri);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">Learn key phrases →</button>
   </div>
 </div>
 
-<div id="s-interp" class="sc">
+<!-- LEARN (Step 2 of 3) -->
+<div id="s-learn" class="sc">
   <div class="hdr">
-    <button class="back" onclick="nav('s-dash')">←</button>
-    <div><div style="color:#fff;font-weight:900;font-size:16px">🌐 Live Interpreter</div><div style="color:rgba(255,255,255,.65);font-size:11px">Speak → Translate → Play loud</div></div>
+    <button class="back" onclick="go('s-listen')">←</button>
+    <div>
+      <div class="htxt" id="lrn-ttl"></div>
+      <div class="hsub">Step 2 of 3 · Learn key phrases</div>
+    </div>
   </div>
+  <div style="padding:7px 13px;background:#EAF4F6;border-bottom:1px solid var(--bdr);font-size:11px;color:var(--prd);font-weight:700;flex-shrink:0;text-align:center">
+    📚 Tap 🔊 to hear each phrase — repeat out loud before practising
+  </div>
+  <div class="scroll" id="lrn-phrases" style="padding:14px 13px"></div>
+  <div style="padding:10px 13px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bdr);flex-shrink:0">
+    <button onclick="startPractice()" style="width:100%;padding:14px;border-radius:var(--rs);border:none;background:var(--acc);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;cursor:pointer">🎤 Start Practice →</button>
+  </div>
+</div>
+
+<!-- CHAT (Step 3 of 3 — Practice) -->
+<div id="s-chat" class="sc">
+  <div style="background:var(--pri);padding:env(safe-area-inset-top,12px) 13px 11px;flex-shrink:0">
+    <div style="display:flex;align-items:center;gap:9px">
+      <button class="back" onclick="endChat()">←</button>
+      <div style="flex:1;min-width:0">
+        <div style="color:#fff;font-weight:800;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis" id="ch-ttl"></div>
+        <div style="color:rgba(255,255,255,.65);font-size:11px" id="ch-sub"></div>
+      </div>
+      <div id="ch-tmr" style="background:rgba(255,255,255,.15);border-radius:99px;padding:3px 9px;font-size:11px;color:#fff;font-weight:700;flex-shrink:0">⏱ 3:00</div>
+      <button id="tts-btn" onclick="toggleTTS()" title="Toggle voice" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;width:31px;height:31px;cursor:pointer;color:#fff;font-size:14px;display:flex;align-items:center;justify-content:center;flex-shrink:0">🔊</button>
+      <button onclick="restartChat()" style="background:rgba(255,255,255,.15);border:none;border-radius:10px;width:31px;height:31px;cursor:pointer;color:#fff;font-size:13px;display:flex;align-items:center;justify-content:center;flex-shrink:0">↺</button>
+    </div>
+  </div>
+  <div class="ais">🤖 AI Coach · Speak English · Corrections in your language</div>
+  <div class="scroll" id="msgs" style="padding:10px"></div>
+  <div style="padding:8px 9px;padding-bottom:calc(8px + env(safe-area-inset-bottom,0px));background:var(--sur);border-top:1px solid var(--bdr);display:flex;align-items:flex-end;gap:6px;flex-shrink:0">
+    <button id="mic-btn" onclick="toggleMic()" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--sur2);color:var(--pri);font-size:17px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">🎤</button>
+    <textarea id="cin" placeholder="Type your English answer..." rows="1" class="inp" style="flex:1;resize:none;line-height:1.4;max-height:88px;overflow-y:auto;padding:10px 11px" oninput="resizeTa(this)" onkeydown="chatKey(event)"></textarea>
+    <button onclick="replayAI()" title="Listen again" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--sur2);color:var(--pri);font-size:18px;cursor:pointer;flex-shrink:0;display:flex;align-items:center;justify-content:center">🔈</button>
+    <button id="snd-btn" onclick="sendMsg()" style="width:41px;height:41px;border-radius:11px;border:none;background:var(--sur2);color:var(--txl);font-size:16px;cursor:default;flex-shrink:0;display:flex;align-items:center;justify-content:center">➤</button>
+  </div>
+</div>
+
+<!-- INTERPRETER -->
+<div id="s-interp" class="sc">
+  <div class="hdr"><button class="back" onclick="go('s-dash')">←</button><div><div class="htxt">🌐 Live Interpreter</div><div class="hsub">Speak → Translate → Play loud</div></div></div>
   <div style="flex:1;display:flex;flex-direction:column;overflow:hidden">
-    <div style="flex:1;display:flex;flex-direction:column;min-height:0;background:#EAF4F6;border-bottom:2px solid var(--border)">
-      <div style="background:var(--primary);padding:7px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0">
+    <div style="flex:1;display:flex;flex-direction:column;min-height:0;background:#EAF4F6;border-bottom:2px solid var(--bdr)">
+      <div style="background:var(--pri);padding:7px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0">
         <span style="color:#fff;font-size:12px;font-weight:700">Person A</span>
         <select id="la" style="margin-left:auto;background:rgba(255,255,255,.2);border:none;border-radius:7px;padding:3px 7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;outline:none"></select>
       </div>
       <div style="flex:1;padding:10px 12px;overflow:auto;min-height:0">
-        <div id="oa" style="font-size:14px;color:var(--text);line-height:1.5;margin-bottom:4px"></div>
-        <div id="ta" style="font-size:14px;font-weight:700;color:var(--primary-d);line-height:1.5;display:none;border-top:1px solid var(--border);padding-top:6px;margin-top:3px"></div>
-        <div id="ha" style="font-size:12px;color:var(--text-lt);font-style:italic">Press 🎤 to speak...</div>
+        <div id="oa" style="font-size:14px;line-height:1.5;margin-bottom:4px"></div>
+        <div id="ta" style="font-size:14px;font-weight:700;color:var(--prd);line-height:1.5;display:none;border-top:1px solid var(--bdr);padding-top:6px;margin-top:3px"></div>
+        <div id="ha" style="font-size:12px;color:var(--txl);font-style:italic">Press 🎤 to speak...</div>
       </div>
       <div style="padding:7px 10px 9px;display:flex;gap:7px;background:rgba(255,255,255,.4);flex-shrink:0">
-        <button id="mba" onpointerdown="listenPanel('a')" onpointerup="stopPanel('a')" style="flex:1;padding:10px;border-radius:var(--r-sm);border:none;background:var(--primary);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">🎤 Speak</button>
-        <button id="pba" onclick="playPanel('a')" style="display:none;padding:10px 12px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--text)">🔊 Play</button>
+        <button id="mba" onpointerdown="listenP('a')" onpointerup="stopP('a')" style="flex:1;padding:10px;border-radius:var(--rs);border:none;background:var(--pri);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">🎤 Speak</button>
+        <button id="pba" onclick="playP('a')" style="display:none;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--sur);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">🔊 Play</button>
       </div>
     </div>
     <div style="flex:1;display:flex;flex-direction:column;min-height:0;background:#FEF8EE">
-      <div style="background:var(--accent);padding:7px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0">
+      <div style="background:var(--acc);padding:7px 12px;display:flex;align-items:center;gap:8px;flex-shrink:0">
         <span style="color:#fff;font-size:12px;font-weight:700">Person B</span>
         <select id="lb" style="margin-left:auto;background:rgba(255,255,255,.2);border:none;border-radius:7px;padding:3px 7px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;outline:none"></select>
       </div>
       <div style="flex:1;padding:10px 12px;overflow:auto;min-height:0">
-        <div id="ob" style="font-size:14px;color:var(--text);line-height:1.5;margin-bottom:4px"></div>
-        <div id="tb" style="font-size:14px;font-weight:700;color:#8A4D00;line-height:1.5;display:none;border-top:1px solid var(--border);padding-top:6px;margin-top:3px"></div>
-        <div id="hb" style="font-size:12px;color:var(--text-lt);font-style:italic">Press 🎤 to speak...</div>
+        <div id="ob" style="font-size:14px;line-height:1.5;margin-bottom:4px"></div>
+        <div id="tb" style="font-size:14px;font-weight:700;color:#8A4D00;line-height:1.5;display:none;border-top:1px solid var(--bdr);padding-top:6px;margin-top:3px"></div>
+        <div id="hb" style="font-size:12px;color:var(--txl);font-style:italic">Press 🎤 to speak...</div>
       </div>
       <div style="padding:7px 10px;padding-bottom:calc(9px + env(safe-area-inset-bottom,0px));display:flex;gap:7px;background:rgba(255,255,255,.4);flex-shrink:0">
-        <button id="mbb" onpointerdown="listenPanel('b')" onpointerup="stopPanel('b')" style="flex:1;padding:10px;border-radius:var(--r-sm);border:none;background:var(--accent);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">🎤 Speak</button>
-        <button id="pbb" onclick="playPanel('b')" style="display:none;padding:10px 12px;border-radius:var(--r-sm);border:1.5px solid var(--border);background:var(--surface);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--text)">🔊 Play</button>
+        <button id="mbb" onpointerdown="listenP('b')" onpointerup="stopP('b')" style="flex:1;padding:10px;border-radius:var(--rs);border:none;background:var(--acc);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">🎤 Speak</button>
+        <button id="pbb" onclick="playP('b')" style="display:none;padding:10px 12px;border-radius:var(--rs);border:1.5px solid var(--bdr);background:var(--sur);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">🔊 Play</button>
       </div>
     </div>
   </div>
 </div>
 
+<!-- SETTINGS -->
 <div id="s-settings" class="sc">
-  <div class="hdr"><button class="back" onclick="nav('s-dash')">←</button><div style="color:#fff;font-weight:900;font-size:16px">Settings</div></div>
+  <div class="hdr"><button class="back" onclick="go('s-dash')">←</button><div class="htxt">Settings</div></div>
   <div class="scroll" style="padding:13px 14px">
-    <div id="srows"></div>
-    <div style="margin-top:16px;padding:12px;background:var(--accent-lt);border-radius:var(--r-sm);font-size:11px;color:#7A4D00;line-height:1.7"><b>Lingi Coach</b> by LOVEUAD LTD · Co. 16838046<br>kanchan.g12@gmail.com · Google Gemini AI · EU AI Act compliant</div>
+    <div id="s-rows"></div>
+    <div style="margin-top:12px"><button class="btn" style="background:#FEE2E2;color:#991B1B;border:none" onclick="doLogout()">Log out</button></div>
+    <div style="margin-top:12px;padding:11px;background:var(--acl);border-radius:var(--rs);font-size:11px;color:#7A4D00;line-height:1.7"><b>Lingi Coach</b> by LOVEUAD LTD · Co. 16838046 · kanchan.g12@gmail.com · Google Gemini AI · EU AI Act compliant</div>
   </div>
 </div>
 
-<div id="s-privacy" class="sc">
-  <div class="hdr"><button class="back" onclick="navBack()">←</button><div style="color:#fff;font-weight:900;font-size:16px">Privacy Policy</div></div>
-  <div class="scroll" style="padding:13px 14px 24px">
-    <p style="font-size:10px;color:var(--text-lt);margin-bottom:13px;padding:6px 9px;background:var(--surface2);border-radius:7px">Version 1.0 · May 2026 · GDPR · UK GDPR · EU AI Act Art.50 · COPPA</p>
-    <div id="priv-body"></div>
-  </div>
-</div>
-
+<!-- PAYWALL -->
 <div class="ov" id="paywall">
   <div class="ovs">
-    <div style="background:var(--primary);border-radius:22px 22px 0 0;padding:18px 18px 20px;text-align:center;position:relative">
+    <div style="background:var(--pri);border-radius:22px 22px 0 0;padding:18px 18px 20px;text-align:center;position:relative">
       <div style="font-size:32px">⭐</div>
       <div style="color:#fff;font-weight:900;font-size:17px;margin-top:5px">Go Pro — Unlimited Practice</div>
       <div style="color:rgba(255,255,255,.7);font-size:12px;margin-top:3px">Your 3 free minutes today are used up.</div>
       <button onclick="closePay()" style="position:absolute;top:13px;right:13px;background:rgba(255,255,255,.15);border:none;border-radius:7px;width:27px;height:27px;color:#fff;cursor:pointer;font-size:12px">✕</button>
     </div>
-    <div style="display:flex;border-bottom:1px solid var(--border)">
-      <button onclick="ptab('up')" id="t-up" style="flex:1;padding:10px;border:none;background:none;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--primary);border-bottom:2px solid var(--primary);margin-bottom:-1px">Upgrade</button>
-      <button onclick="ptab('red')" id="t-red" style="flex:1;padding:10px;border:none;background:none;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--text-lt);border-bottom:2px solid transparent;margin-bottom:-1px">Redeem Token</button>
+    <div style="display:flex;border-bottom:1px solid var(--bdr)">
+      <button onclick="ptab('up')" id="pt-up" style="flex:1;padding:10px;border:none;background:none;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--pri);border-bottom:2px solid var(--pri);margin-bottom:-1px">Upgrade</button>
+      <button onclick="ptab('red')" id="pt-red" style="flex:1;padding:10px;border:none;background:none;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;color:var(--txl);border-bottom:2px solid transparent;margin-bottom:-1px">I already paid</button>
     </div>
     <div style="padding:16px 15px" id="pay-body"></div>
   </div>
@@ -218,11 +267,21 @@ body{font-family:'Nunito',sans-serif;color:var(--text);-webkit-font-smoothing:an
 
 </div>
 <script>
-const API_URL=(window.API_BASE||'').trim()||'http://localhost:8080';
-async function apiFetch(m,p,b){const r=await fetch(API_URL+p,{method:m,headers:{'Content-Type':'application/json'},body:b?JSON.stringify(b):undefined});if(!r.ok){const e=await r.json().catch(()=>({detail:'Error'}));throw new Error(e.detail||'Failed');}return r.json();}
-const API={start:d=>apiFetch('POST','/session/start',d),chat:(s,m)=>apiFetch('POST','/session/chat',{session_id:s,message:m}),del:s=>apiFetch('DELETE','/session/'+s),tr:(t,f,to)=>apiFetch('POST','/translate',{text:t,from_lang_code:f,to_lang_code:to}),checkout:(p,e)=>apiFetch('POST','/payment/create-checkout',{plan:p,email:e}),verify:t=>apiFetch('POST','/payment/verify-token',{token:t})};
+const FREE_SECS = 180;
+let token = null, userData = null, currentLang = null, selLang = null;
+let currentCat = null, currentSc = null;
+let sid = null, chatLoading = false, micOn = false, chatRec = null;
+let timerInt = null, msgCount = 0;
+let trA = {}, trB = {}, recA = null, recB = null;
+let prevSc = 's-dash';
 
-const LANGS=[
+// Listen/Learn state
+let demoData    = null;
+let convLines   = [];
+let convIdx     = 0;
+let convPlaying = false;
+
+const LANGS = [
   {c:'bn',n:'Bengali',v:'বাংলা',f:'🇧🇩',s:'bn-BD'},{c:'hi',n:'Hindi',v:'हिन्दी',f:'🇮🇳',s:'hi-IN'},
   {c:'ta',n:'Tamil',v:'தமிழ்',f:'🇮🇳',s:'ta-IN'},{c:'te',n:'Telugu',v:'తెలుగు',f:'🇮🇳',s:'te-IN'},
   {c:'mr',n:'Marathi',v:'मराठी',f:'🇮🇳',s:'mr-IN'},{c:'ur',n:'Urdu',v:'اردو',f:'🇵🇰',s:'ur-PK'},
@@ -237,642 +296,902 @@ const LANGS=[
   {c:'nl',n:'Dutch',v:'Nederlands',f:'🇳🇱',s:'nl-NL'},{c:'pl',n:'Polish',v:'Polski',f:'🇵🇱',s:'pl-PL'},
   {c:'en',n:'English',v:'English',f:'🇬🇧',s:'en-GB'}
 ];
-
 const CATS=[
   {id:'hospital',t:'Hospital',i:'🏥',c:'#E74C3C',s:[
-    {id:'h01',t:'Booking a GP appointment',r:'receptionist',d:'You are calling your GP surgery to book an appointment.'},
+    {id:'h01',t:'Booking a GP appointment',r:'receptionist',d:'You are calling your GP surgery to book an appointment. You feel unwell.'},
     {id:'h02',t:'Describing symptoms',r:'doctor',d:'You are sitting with a doctor. They ask what is wrong.'},
-    {id:'h03',t:'Asking about medication',r:'pharmacist',d:'You are at the pharmacy collecting a prescription.'},
-    {id:'h04',t:'Calling for an ambulance',r:'999 operator',d:'Someone near you has collapsed. You need to call 999.'},
-    {id:'h05',t:'Checking in at A&E',r:'A&E receptionist',d:'You have arrived at A&E with a bad injury.'},
-    {id:'h06',t:'Asking a nurse for help',r:'nurse',d:'You are in a hospital ward and need help.'},
-    {id:'h07',t:'Understanding a prescription',r:'pharmacist',d:'You do not understand the dosage instructions on your medicine.'},
-    {id:'h08',t:'Asking about waiting time',r:'hospital receptionist',d:'You have been waiting in A&E for two hours.'},
-    {id:'h09',t:'Talking to a specialist',r:'specialist consultant',d:'You have been referred to a specialist. They want your medical history.'},
-    {id:'h10',t:'Requesting a sick note',r:'GP doctor',d:'You have been ill and your employer needs a sick note.'},
-    {id:'h11',t:'Asking about test results',r:'doctor',d:'You had blood tests last week. You call to find out if results are ready.'},
-    {id:'h12',t:'Registering with a GP',r:'GP receptionist',d:'You have moved to a new area and need to register with a GP.'},
-    {id:'h13',t:'Cancelling an appointment',r:'receptionist',d:'You cannot attend your hospital appointment. You call to cancel.'},
+    {id:'h03',t:'Asking about medication',r:'pharmacist',d:'You are at the pharmacy collecting a prescription. You want to know how to take the medicine.'},
+    {id:'h04',t:'Calling for an ambulance',r:'999 operator',d:'Someone near you has collapsed. You need to call 999 and explain what is happening.'},
+    {id:'h05',t:'Checking in at A&E',r:'A&E receptionist',d:'You have arrived at A&E with a bad injury. You need to check in and explain what happened.'},
+    {id:'h06',t:'Asking a nurse for help',r:'nurse',d:'You are in a hospital ward. You need help and want to speak to the nurse on duty.'},
+    {id:'h07',t:'Understanding a prescription',r:'pharmacist',d:'The pharmacist hands you medicine. You do not understand the dosage instructions.'},
+    {id:'h08',t:'Asking about waiting time',r:'hospital receptionist',d:'You have been waiting in A&E for two hours. You want to know how much longer.'},
+    {id:'h09',t:'Talking to a specialist',r:'specialist consultant',d:'You have been referred to a specialist. They want to know your medical history.'},
+    {id:'h10',t:'Requesting a sick note',r:'GP doctor',d:'You have been ill for five days and your employer needs a sick note.'},
+    {id:'h11',t:'Asking about test results',r:'doctor',d:'You had blood tests last week. You call to find out if the results are ready.'},
+    {id:'h12',t:'Registering with a GP',r:'GP receptionist',d:'You have moved to a new area. You go to a GP surgery to register as a new patient.'},
+    {id:'h13',t:'Cancelling an appointment',r:'receptionist',d:'You cannot attend your hospital appointment tomorrow. You call to cancel and rebook.'},
     {id:'h14',t:'Asking about visiting hours',r:'ward nurse',d:'Your relative is in hospital. You call to ask when you can visit.'},
-    {id:'h15',t:'Talking about allergies',r:'doctor',d:'Before a procedure, the doctor asks if you have any allergies.'},
-    {id:'h16',t:'Mental health appointment',r:'counsellor',d:'You attend your first counselling session.'},
-    {id:'h17',t:'Eye test at optician',r:'optician',d:'You are at an optician for the first time.'},
-    {id:'h18',t:'Dental appointment',r:'dentist',d:'You are at the dentist. They ask which tooth hurts.'},
-    {id:'h19',t:'Blood test at the lab',r:'phlebotomist',d:'You arrive at the hospital lab for a blood test.'},
-    {id:'h20',t:'Hospital discharge',r:'discharge nurse',d:'You are being discharged. The nurse explains what to do at home.'},
+    {id:'h15',t:'Talking about allergies',r:'doctor',d:'Before a procedure, the doctor asks if you are allergic to any medicines or foods.'},
+    {id:'h16',t:'Mental health appointment',r:'counsellor',d:'You attend your first counselling session. The counsellor asks why you came.'},
+    {id:'h17',t:'Eye test at optician',r:'optician',d:'You are at an optician for the first time. They ask about your vision history.'},
+    {id:'h18',t:'Dental appointment',r:'dentist',d:'You are at the dentist. They ask which tooth hurts and for how long.'},
+    {id:'h19',t:'Blood test at the lab',r:'phlebotomist',d:'You arrive at the hospital lab for a blood test. The nurse asks to confirm your details.'},
+    {id:'h20',t:'Hospital discharge',r:'discharge nurse',d:'You are being discharged. The nurse explains what you must do when you get home.'},
   ]},
   {id:'bus',t:'Bus',i:'🚌',c:'#E67E22',s:[
-    {id:'b01',t:'Buying a single ticket',r:'bus driver',d:'You board a bus and need to buy a single ticket.'},
-    {id:'b02',t:'Asking which bus to take',r:'passenger',d:'You are at a bus stop and not sure which bus goes to the town centre.'},
-    {id:'b03',t:'Asking the driver for your stop',r:'bus driver',d:'You are on a bus and not sure which stop to get off at.'},
-    {id:'b04',t:'Buying a day pass',r:'bus driver',d:'You want to travel all day on the bus.'},
-    {id:'b05',t:'Asking about delays',r:'bus company staff',d:'Your bus is very late. You call to ask what has happened.'},
-    {id:'b06',t:'Using a travel app',r:'fellow passenger',d:'You cannot work out how to use the local bus app.'},
-    {id:'b07',t:'Asking for change',r:'bus driver',d:'You only have a large note. You ask if the driver can give change.'},
-    {id:'b08',t:'Talking to another passenger',r:'fellow passenger',d:'You sit next to someone friendly on the bus.'},
-    {id:'b09',t:'Reporting a lost item',r:'bus lost property',d:'You left your bag on the bus. You call to report it.'},
-    {id:'b10',t:'Asking about night buses',r:'bus information staff',d:'You need to get home late at night.'},
-    {id:'b11',t:'Contactless payment problem',r:'bus driver',d:'Your contactless card is declined at the reader.'},
+    {id:'b01',t:'Buying a single ticket',r:'bus driver',d:'You board a bus and need to buy a single ticket to your destination.'},
+    {id:'b02',t:'Asking which bus to take',r:'passenger at bus stop',d:'You are at a bus stop and not sure which bus goes to the town centre.'},
+    {id:'b03',t:'Asking the driver for your stop',r:'bus driver',d:'You are on a bus and not sure which stop to get off at. You ask the driver.'},
+    {id:'b04',t:'Buying a day pass',r:'bus driver',d:'You want to travel all day on the bus. You ask about buying a day pass.'},
+    {id:'b05',t:'Asking about delays',r:'bus company staff',d:'Your bus is very late. You call the bus company to ask what has happened.'},
+    {id:'b06',t:'Using a travel app',r:'fellow passenger',d:'You cannot work out how to use the local bus app. You ask the person next to you.'},
+    {id:'b07',t:'Asking for change',r:'bus driver',d:'You only have a large note. You ask the driver if they can give change.'},
+    {id:'b08',t:'Talking to another passenger',r:'fellow passenger',d:'You sit next to someone friendly on the bus. They start a conversation.'},
+    {id:'b09',t:'Reporting a lost item',r:'bus lost property',d:'You left your bag on the bus. You call to report it and ask if it has been found.'},
+    {id:'b10',t:'Asking about night buses',r:'bus information staff',d:'You need to get home late at night. You ask about night bus times and routes.'},
+    {id:'b11',t:'Contactless payment problem',r:'bus driver',d:'Your contactless card is declined at the reader. You explain the problem.'},
     {id:'b12',t:'Asking for a timetable',r:'bus company staff',d:'You want to know what time the buses run on Sundays.'},
-    {id:'b13',t:'Bus is full',r:'bus driver',d:'The bus is full and the driver will not let you on.'},
-    {id:'b14',t:'Got on the wrong bus',r:'bus driver',d:'You realise you are on the wrong bus.'},
-    {id:'b15',t:'Asking about accessibility',r:'bus driver',d:'You have a pushchair. You ask if there is space and how to board.'},
-    {id:'b16',t:'Asking about luggage rules',r:'bus company staff',d:'You want to take a large suitcase on a local bus.'},
-    {id:'b17',t:'Making a complaint',r:'bus customer service',d:'The bus driver was rude to you. You call to complain.'},
-    {id:'b18',t:'Child ticket question',r:'bus driver',d:'You are travelling with your child. You ask about child ticket prices.'},
-    {id:'b19',t:'Group travel question',r:'bus company staff',d:'You are travelling in a group of eight.'},
-    {id:'b20',t:'Bus replacement service',r:'replacement bus driver',d:'Trains are not running and a bus is replacing them.'},
+    {id:'b13',t:'Bus is full',r:'bus driver',d:'The bus is full and the driver will not let you on. You ask when the next bus is.'},
+    {id:'b14',t:'Got on the wrong bus',r:'bus driver',d:'You realise you are on the wrong bus. You ask where to get off and what to do.'},
+    {id:'b15',t:'Asking about accessibility',r:'bus driver',d:'You have a pushchair. You ask the driver if there is space and how to board safely.'},
+    {id:'b16',t:'Asking about luggage rules',r:'bus company staff',d:'You want to take a large suitcase on a local bus. You ask if this is allowed.'},
+    {id:'b17',t:'Making a complaint',r:'bus customer service',d:'The bus driver was rude to you. You call the company to make a formal complaint.'},
+    {id:'b18',t:'Child ticket question',r:'bus driver',d:'You are travelling with your child. You ask how much a child ticket costs.'},
+    {id:'b19',t:'Group travel question',r:'bus company staff',d:'You are travelling in a group of eight. You ask about group discounts.'},
+    {id:'b20',t:'Bus replacement service',r:'rail replacement bus driver',d:'Trains are not running and a bus is replacing them. You ask about the journey.'},
   ]},
   {id:'train',t:'Train',i:'🚂',c:'#8E44AD',s:[
-    {id:'t01',t:'Buying a ticket at the machine',r:'helpful commuter',d:'You are at a ticket machine and confused.'},
-    {id:'t02',t:'At the ticket office',r:'ticket office staff',d:'You need a return ticket and want the cheapest option.'},
-    {id:'t03',t:'Finding the right platform',r:'station staff',d:'You cannot find your platform.'},
-    {id:'t04',t:'Train is delayed',r:'station staff',d:'Your train is delayed by 40 minutes.'},
-    {id:'t05',t:'Seat reservation problem',r:'train conductor',d:'Someone is sitting in your reserved seat.'},
-    {id:'t06',t:'Train is cancelled',r:'station customer service',d:'Your train has been cancelled.'},
-    {id:'t07',t:'Lost luggage claim',r:'lost property office',d:'You left your bag on the train.'},
-    {id:'t08',t:'Asking about railcards',r:'ticket office staff',d:'You want to save money on train travel.'},
-    {id:'t09',t:'First class vs standard',r:'ticket office staff',d:'You want to know the price difference between classes.'},
-    {id:'t10',t:'Asking about connections',r:'station staff',d:'You need to change trains and are not sure about your connection.'},
-    {id:'t11',t:'Ticket barrier problem',r:'barrier staff',d:'Your ticket will not open the barrier.'},
-    {id:'t12',t:'Speaking to the conductor',r:'train conductor',d:'The conductor checks your ticket on the train.'},
-    {id:'t13',t:'Reporting a problem on board',r:'train conductor',d:'There is a problem on the train. You report it.'},
-    {id:'t14',t:'Help with heavy luggage',r:'station staff',d:'You have very heavy luggage and need help onto the train.'},
-    {id:'t15',t:'Child fare questions',r:'ticket office staff',d:'You are travelling with two children.'},
-    {id:'t16',t:'Group booking',r:'ticket office staff',d:'You are booking for a group of ten.'},
-    {id:'t17',t:'International train inquiry',r:'Eurostar staff',d:'You want to take the Eurostar.'},
-    {id:'t18',t:'Train strike inquiry',r:'station information staff',d:'There is a rail strike. You ask which trains are running.'},
+    {id:'t01',t:'Buying a ticket at the machine',r:'helpful commuter',d:'You are at a ticket machine and confused. You ask a nearby commuter to help.'},
+    {id:'t02',t:'At the ticket office',r:'ticket office staff',d:'You need a return ticket and want to know the cheapest option.'},
+    {id:'t03',t:'Finding the right platform',r:'station staff',d:'You cannot find your platform. You ask a member of station staff.'},
+    {id:'t04',t:'Train is delayed',r:'station staff',d:'Your train is delayed by 40 minutes. You ask what has happened.'},
+    {id:'t05',t:'Seat reservation problem',r:'train conductor',d:'Someone is sitting in your reserved seat. You ask the conductor to help.'},
+    {id:'t06',t:'Train is cancelled',r:'station customer service',d:'Your train has been cancelled. You ask about alternatives and a refund.'},
+    {id:'t07',t:'Lost luggage claim',r:'lost property office',d:'You left your bag on the train. You report it and ask what happens next.'},
+    {id:'t08',t:'Asking about railcards',r:'ticket office staff',d:'You want to save money on train travel. You ask about railcards.'},
+    {id:'t09',t:'First class vs standard',r:'ticket office staff',d:'You want to know the difference in price between first class and standard.'},
+    {id:'t10',t:'Asking about connections',r:'station staff',d:'You need to change trains and are not sure if you will make your connection.'},
+    {id:'t11',t:'Ticket barrier problem',r:'barrier staff',d:'Your ticket will not open the barrier. You ask the member of staff.'},
+    {id:'t12',t:'Speaking to the conductor',r:'train conductor',d:'The conductor checks your ticket. You need to explain something about your journey.'},
+    {id:'t13',t:'Reporting a problem on board',r:'train conductor',d:'There is a problem on the train. You report it to the conductor.'},
+    {id:'t14',t:'Help with heavy luggage',r:'station staff',d:'You have very heavy luggage and need help getting it onto the train.'},
+    {id:'t15',t:'Child fare questions',r:'ticket office staff',d:'You are travelling with two children. You ask about child fares.'},
+    {id:'t16',t:'Group booking',r:'ticket office staff',d:'You are booking for a group of ten. You ask about group discounts.'},
+    {id:'t17',t:'International train inquiry',r:'Eurostar staff',d:'You want to take the Eurostar. You ask about tickets, passport checks, and luggage.'},
+    {id:'t18',t:'Train strike inquiry',r:'station information staff',d:'There is a rail strike. You ask which trains are still running.'},
     {id:'t19',t:'Refund request',r:'customer service staff',d:'Your train was cancelled and you want a refund.'},
     {id:'t20',t:'Accessibility assistance',r:'station staff',d:'You need assistance boarding due to mobility issues.'},
   ]},
   {id:'school',t:'School',i:'🏫',c:'#27AE60',s:[
-    {id:'sc01',t:'Enrolling your child',r:'admissions officer',d:'You want to enrol your child in the local school.'},
-    {id:'sc02',t:'Talking to the class teacher',r:'class teacher',d:'You meet your child\'s teacher after school.'},
-    {id:'sc03',t:'Parent evening',r:'form teacher',d:'It is parents\' evening. The teacher discusses your child\'s progress.'},
-    {id:'sc04',t:'Calling to report absence',r:'school receptionist',d:'Your child is ill today. You call the school.'},
-    {id:'sc05',t:'Asking about homework',r:'class teacher',d:'Your child does not understand the homework.'},
-    {id:'sc06',t:'Discussing a behaviour issue',r:'headteacher',d:'The school has called you in about your child\'s behaviour.'},
-    {id:'sc07',t:'Asking about school meals',r:'school office staff',d:'You want to know about the lunch menu and cost.'},
-    {id:'sc08',t:'Talking to the headteacher',r:'headteacher',d:'You have a serious concern and have arranged a meeting.'},
-    {id:'sc09',t:'School trip permission',r:'class teacher',d:'The school is organising a trip. You ask for details.'},
-    {id:'sc10',t:'After-school clubs',r:'school office staff',d:'You want your child to join an after-school club.'},
-    {id:'sc11',t:'SEN support request',r:'SENCO teacher',d:'You believe your child may need extra learning support.'},
-    {id:'sc12',t:'Uniform inquiry',r:'school office staff',d:'You ask about the school uniform requirements.'},
+    {id:'sc01',t:'Enrolling your child',r:'admissions officer',d:'You want to enrol your child in the local school for the first time.'},
+    {id:'sc02',t:'Talking to the class teacher',r:'class teacher',d:'You meet your child\'s teacher after school to discuss progress.'},
+    {id:'sc03',t:'Parent evening',r:'form teacher',d:'It is parents\' evening. The teacher tells you about your child\'s progress.'},
+    {id:'sc04',t:'Calling to report absence',r:'school receptionist',d:'Your child is ill today. You call the school in the morning to let them know.'},
+    {id:'sc05',t:'Asking about homework',r:'class teacher',d:'Your child does not understand the homework. You speak to the teacher.'},
+    {id:'sc06',t:'Discussing a behaviour issue',r:'headteacher',d:'The school has called you in to discuss your child\'s behaviour.'},
+    {id:'sc07',t:'Asking about school meals',r:'school office staff',d:'You want to know about the lunch menu, cost, and how to pay.'},
+    {id:'sc08',t:'Talking to the headteacher',r:'headteacher',d:'You have a serious concern and have arranged to meet the headteacher.'},
+    {id:'sc09',t:'School trip permission',r:'class teacher',d:'The school is organising a trip. You ask for details before signing the form.'},
+    {id:'sc10',t:'After-school clubs',r:'school office staff',d:'You want your child to join an after-school club. You ask about what is available.'},
+    {id:'sc11',t:'SEN support request',r:'SENCO teacher',d:'You believe your child may need extra learning support. You speak to the SENCO.'},
+    {id:'sc12',t:'Uniform inquiry',r:'school office staff',d:'You ask about the school uniform — what is required and where to buy it.'},
     {id:'sc13',t:'School report discussion',r:'class teacher',d:'You have received your child\'s school report and have questions.'},
-    {id:'sc14',t:'Reporting bullying',r:'pastoral lead teacher',d:'Your child is being bullied. You report it formally.'},
-    {id:'sc15',t:'Transfer from another school',r:'admissions officer',d:'You have just moved to the area with a school-age child.'},
-    {id:'sc16',t:'Asking about exam results',r:'exam officer',d:'Your child has taken exams. You ask when and how to get results.'},
-    {id:'sc17',t:'University application support',r:'sixth form tutor',d:'Your teenager is applying to university.'},
-    {id:'sc18',t:'Scholarship inquiry',r:'school administrator',d:'You want to know if your child qualifies for a bursary.'},
-    {id:'sc19',t:'Meeting the school counsellor',r:'school counsellor',d:'Your child has been struggling emotionally.'},
-    {id:'sc20',t:'Leavers ceremony',r:'headteacher',d:'It is your child\'s last day at school.'},
+    {id:'sc14',t:'Reporting bullying',r:'pastoral lead teacher',d:'Your child is being bullied. You meet the pastoral lead to report it formally.'},
+    {id:'sc15',t:'Transfer from another school',r:'admissions officer',d:'You have just moved to the area. You need to transfer your child.'},
+    {id:'sc16',t:'Asking about exam results',r:'exam officer',d:'Your child has taken exams. You ask how and when to collect results.'},
+    {id:'sc17',t:'University application support',r:'sixth form tutor',d:'Your teenager is applying to university. You meet their tutor to understand the process.'},
+    {id:'sc18',t:'Scholarship inquiry',r:'school administrator',d:'You want to know if your child qualifies for a bursary at the school.'},
+    {id:'sc19',t:'Meeting the school counsellor',r:'school counsellor',d:'Your child has been struggling emotionally. You meet the school counsellor.'},
+    {id:'sc20',t:'Leavers ceremony',r:'headteacher',d:'It is your child\'s last day at school. You speak to the headteacher at the event.'},
   ]},
   {id:'restaurant',t:'Restaurant',i:'🍽️',c:'#C0392B',s:[
-    {id:'r01',t:'Getting a table',r:'restaurant host',d:'You arrive at a restaurant without a booking.'},
-    {id:'r02',t:'Ordering food',r:'waiter',d:'The waiter comes to take your order.'},
-    {id:'r03',t:'Asking about the menu',r:'waiter',d:'You do not understand some items on the menu.'},
-    {id:'r04',t:'Food allergies',r:'waiter',d:'You are allergic to nuts and gluten. You ask which dishes are safe.'},
-    {id:'r05',t:'Sending food back',r:'waiter',d:'Your meal arrives cold and is not what you ordered.'},
-    {id:'r06',t:'Asking for the bill',r:'waiter',d:'You have finished eating and want the bill.'},
-    {id:'r07',t:'Splitting the bill',r:'waiter',d:'You are dining with friends and want to split the bill.'},
-    {id:'r08',t:'Complaining about service',r:'restaurant manager',d:'The service was slow and staff were rude.'},
-    {id:'r09',t:'Booking a table by phone',r:'restaurant receptionist',d:'You call to book a table for four people.'},
-    {id:'r10',t:'Asking for water and condiments',r:'waiter',d:'You want a jug of water and some ketchup and salt.'},
+    {id:'r01',t:'Getting a table',r:'restaurant host',d:'You arrive at a restaurant without a booking. You ask if they have a table.'},
+    {id:'r02',t:'Ordering food',r:'waiter',d:'The waiter comes to take your order. You order a starter, main, and drink.'},
+    {id:'r03',t:'Asking about the menu',r:'waiter',d:'You do not understand some items on the menu. You ask the waiter to explain them.'},
+    {id:'r04',t:'Food allergies',r:'waiter',d:'You are allergic to nuts and gluten. You ask which dishes are safe for you.'},
+    {id:'r05',t:'Sending food back',r:'waiter',d:'Your meal arrives cold and is not what you ordered. You explain the problem.'},
+    {id:'r06',t:'Asking for the bill',r:'waiter',d:'You have finished eating. You call the waiter over and ask for the bill.'},
+    {id:'r07',t:'Splitting the bill',r:'waiter',d:'You are dining with friends and want to split the bill between all of you.'},
+    {id:'r08',t:'Complaining about service',r:'restaurant manager',d:'The service was very slow and the staff were rude. You ask to speak to the manager.'},
+    {id:'r09',t:'Booking a table by phone',r:'restaurant receptionist',d:'You call to book a table for four people this Saturday evening.'},
+    {id:'r10',t:'Asking for water and condiments',r:'waiter',d:'You want a jug of tap water and some ketchup and salt.'},
     {id:'r11',t:'Ordering takeaway',r:'takeaway staff',d:'You go to a takeaway and order food for collection.'},
-    {id:'r12',t:'Asking about a discount',r:'waiter',d:'You saw a special offer online. You ask if it is valid today.'},
-    {id:'r13',t:'Tipping',r:'waiter',d:'You want to leave a tip. You ask if service charge is included.'},
-    {id:'r14',t:'Asking about opening hours',r:'restaurant staff',d:'You call to ask what time they open and close.'},
-    {id:'r15',t:'Waiting for a table',r:'restaurant host',d:'The restaurant is busy. You ask how long the wait is.'},
-    {id:'r16',t:'Birthday celebration',r:'waiter',d:'You tell the waiter it is your friend\'s birthday.'},
-    {id:'r17',t:'Children\'s menu',r:'waiter',d:'You are eating with young children. You ask about the children\'s menu.'},
+    {id:'r12',t:'Asking about a discount',r:'waiter',d:'You saw a special offer online. You ask the waiter if it is valid today.'},
+    {id:'r13',t:'Tipping',r:'waiter',d:'You want to leave a tip. You ask whether service charge is already included.'},
+    {id:'r14',t:'Asking about opening hours',r:'restaurant staff',d:'You call to ask what time they open and close on weekdays.'},
+    {id:'r15',t:'Waiting for a table',r:'restaurant host',d:'The restaurant is busy. You ask how long the wait is and leave your name.'},
+    {id:'r16',t:'Birthday celebration',r:'waiter',d:'You tell the waiter it is your friend\'s birthday and ask if they can bring a cake.'},
+    {id:'r17',t:'Children\'s menu',r:'waiter',d:'You are eating with young children. You ask about the children\'s menu and highchairs.'},
     {id:'r18',t:'Asking for a takeaway box',r:'waiter',d:'You cannot finish your meal and want to take the rest home.'},
-    {id:'r19',t:'Paying by card',r:'waiter',d:'The card machine is brought to your table.'},
-    {id:'r20',t:'Giving feedback',r:'restaurant manager',d:'The manager asks how your meal was. You give honest feedback.'},
+    {id:'r19',t:'Paying by card',r:'waiter',d:'The card machine is brought to your table. You ask if contactless is accepted.'},
+    {id:'r20',t:'Giving feedback',r:'restaurant manager',d:'On your way out, the manager asks how your meal was. You give honest feedback.'},
   ]},
   {id:'supermarket',t:'Supermarket',i:'🛒',c:'#16A085',s:[
-    {id:'sm01',t:'Asking where to find something',r:'shop assistant',d:'You cannot find the item you are looking for.'},
-    {id:'sm02',t:'Self-checkout problem',r:'self-checkout assistant',d:'The self-checkout machine is not working properly.'},
-    {id:'sm03',t:'Returning a damaged item',r:'customer service desk',d:'You bought something yesterday and it is broken.'},
-    {id:'sm04',t:'Asking about the price',r:'shop assistant',d:'There is no price label on the item you want.'},
+    {id:'sm01',t:'Asking where to find something',r:'shop assistant',d:'You cannot find the item you are looking for. You ask a shop assistant.'},
+    {id:'sm02',t:'Self-checkout problem',r:'self-checkout assistant',d:'The self-checkout machine is not working. You ask the nearby assistant.'},
+    {id:'sm03',t:'Returning a damaged item',r:'customer service desk',d:'You bought something yesterday and it is broken. You bring it back.'},
+    {id:'sm04',t:'Asking about the price',r:'shop assistant',d:'There is no price label on the item you want. You ask how much it costs.'},
     {id:'sm05',t:'Using a discount voucher',r:'cashier',d:'You have a discount voucher but the cashier says it is not working.'},
-    {id:'sm06',t:'Asking for a bag',r:'cashier',d:'You forgot your reusable bag.'},
+    {id:'sm06',t:'Asking for a bag',r:'cashier',d:'You forgot your reusable bag. You ask the cashier for a carrier bag.'},
     {id:'sm07',t:'Age verification',r:'cashier',d:'You are buying alcohol. The cashier asks for proof of age.'},
-    {id:'sm08',t:'Talking to a cashier',r:'cashier',d:'You are at the till. The cashier starts a conversation.'},
+    {id:'sm08',t:'Talking to a cashier',r:'cashier',d:'You are at the till. The cashier starts a friendly conversation with you.'},
     {id:'sm09',t:'Asking about opening hours',r:'shop assistant',d:'You want to know what time the supermarket opens on Sundays.'},
-    {id:'sm10',t:'Reporting a spill',r:'shop assistant',d:'You see a liquid spilled on the floor.'},
-    {id:'sm11',t:'Asking to speak to a manager',r:'store manager',d:'You have a serious complaint.'},
-    {id:'sm12',t:'Loyalty card problem',r:'customer service',d:'Your loyalty points have not appeared on your account.'},
-    {id:'sm13',t:'Click and collect',r:'click and collect desk',d:'You ordered online and are collecting in store.'},
+    {id:'sm10',t:'Reporting a spill',r:'shop assistant',d:'You see a liquid spilled on the floor. You tell a staff member to prevent accidents.'},
+    {id:'sm11',t:'Asking to speak to a manager',r:'store manager',d:'You have a serious complaint. You ask to speak to the store manager.'},
+    {id:'sm12',t:'Loyalty card problem',r:'customer service',d:'Your loyalty points have not appeared on your account. You ask customer service to fix it.'},
+    {id:'sm13',t:'Click and collect',r:'click and collect desk',d:'You ordered online and are collecting in store. You give your order number.'},
     {id:'sm14',t:'Asking about an offer',r:'shop assistant',d:'You cannot work out if an item is included in a special offer.'},
-    {id:'sm15',t:'Complaining about quality',r:'customer service',d:'You bought vegetables that were mouldy by the next day.'},
-    {id:'sm16',t:'Home delivery question',r:'customer service',d:'You want to set up a home delivery.'},
-    {id:'sm17',t:'Pharmacy section',r:'in-store pharmacist',d:'You go to the supermarket pharmacy for a headache remedy.'},
-    {id:'sm18',t:'Deli counter',r:'deli counter staff',d:'You are at the deli counter wanting ham and olives.'},
-    {id:'sm19',t:'Asking for a receipt',r:'cashier',d:'The cashier did not print your receipt.'},
-    {id:'sm20',t:'Asking for help to the car',r:'shop assistant',d:'You have a very large trolley and a young child.'},
+    {id:'sm15',t:'Complaining about quality',r:'customer service',d:'You bought vegetables that were mouldy by the next day. You come back to complain.'},
+    {id:'sm16',t:'Home delivery question',r:'customer service',d:'You want to set up a home delivery. You ask about slots, costs, and minimum spend.'},
+    {id:'sm17',t:'Pharmacy section',r:'in-store pharmacist',d:'You go to the supermarket pharmacy and ask for something for a headache.'},
+    {id:'sm18',t:'Deli counter',r:'deli counter staff',d:'You are at the deli counter. You want to buy 300g of ham and some olives.'},
+    {id:'sm19',t:'Asking for a receipt',r:'cashier',d:'The cashier did not print your receipt. You ask for it before leaving.'},
+    {id:'sm20',t:'Asking for help to the car',r:'shop assistant',d:'You have a very large trolley and a young child. You ask for help to the car.'},
   ]},
   {id:'bank',t:'Bank',i:'🏦',c:'#2980B9',s:[
-    {id:'bk01',t:'Opening a bank account',r:'bank advisor',d:'You go to the bank to open a current account.'},
-    {id:'bk02',t:'Reporting a lost card',r:'bank customer service',d:'You cannot find your debit card. You call the bank.'},
-    {id:'bk03',t:'Asking about interest rates',r:'bank advisor',d:'You want to put money into savings.'},
-    {id:'bk04',t:'International transfer',r:'bank advisor',d:'You want to send money to a family member abroad.'},
-    {id:'bk05',t:'Disputing a charge',r:'bank customer service',d:'You see a charge on your statement you do not recognise.'},
-    {id:'bk06',t:'Asking about a loan',r:'bank loans advisor',d:'You need a personal loan.'},
-    {id:'bk07',t:'Setting up a direct debit',r:'bank customer service',d:'You want to set up a direct debit for rent.'},
-    {id:'bk08',t:'Changing personal details',r:'bank advisor',d:'You have moved to a new address.'},
-    {id:'bk09',t:'Asking about a mortgage',r:'mortgage advisor',d:'You are thinking about buying a house.'},
-    {id:'bk10',t:'Student account inquiry',r:'bank advisor',d:'You are starting university and want a student account.'},
-    {id:'bk11',t:'Business account inquiry',r:'business banking advisor',d:'You are starting a small business.'},
-    {id:'bk12',t:'ATM not working',r:'bank helpline',d:'The ATM kept your card and did not give money.'},
-    {id:'bk13',t:'Frozen account',r:'bank fraud team',d:'Your account has been frozen.'},
-    {id:'bk14',t:'Asking about fees',r:'bank customer service',d:'You have been charged a fee you did not expect.'},
-    {id:'bk15',t:'Credit card application',r:'credit card advisor',d:'You want to apply for a credit card.'},
-    {id:'bk16',t:'Overdraft request',r:'bank advisor',d:'You are going to run out of money before payday.'},
-    {id:'bk17',t:'Savings account question',r:'bank advisor',d:'You want to start saving. You ask about accounts.'},
-    {id:'bk18',t:'Speaking to a financial advisor',r:'financial advisor',d:'You have some money saved and want investment advice.'},
-    {id:'bk19',t:'Understanding your statement',r:'bank customer service',d:'You do not understand some transactions on your statement.'},
+    {id:'bk01',t:'Opening a bank account',r:'bank advisor',d:'You go to the bank to open a current account for the first time.'},
+    {id:'bk02',t:'Reporting a lost card',r:'bank customer service',d:'You cannot find your debit card. You call the bank to report it lost.'},
+    {id:'bk03',t:'Asking about interest rates',r:'bank advisor',d:'You want to put money into savings. You ask about the best interest rates.'},
+    {id:'bk04',t:'International transfer',r:'bank advisor',d:'You want to send money to a family member abroad. You ask about fees and timing.'},
+    {id:'bk05',t:'Disputing a charge',r:'bank customer service',d:'You see a charge on your statement that you do not recognise.'},
+    {id:'bk06',t:'Asking about a loan',r:'bank loans advisor',d:'You need a personal loan. You ask about how much you can borrow and the interest rate.'},
+    {id:'bk07',t:'Setting up a direct debit',r:'bank customer service',d:'You want to set up a direct debit to pay your rent automatically each month.'},
+    {id:'bk08',t:'Changing personal details',r:'bank advisor',d:'You have moved to a new address. You visit the bank to update your details.'},
+    {id:'bk09',t:'Asking about a mortgage',r:'mortgage advisor',d:'You are thinking about buying a house. You ask what mortgage you might qualify for.'},
+    {id:'bk10',t:'Student account inquiry',r:'bank advisor',d:'You are starting university. You want to open a student account.'},
+    {id:'bk11',t:'Business account inquiry',r:'business banking advisor',d:'You are starting a small business. You ask about opening a business bank account.'},
+    {id:'bk12',t:'ATM not working',r:'bank helpline',d:'The ATM kept your card and did not give you money. You call the emergency line.'},
+    {id:'bk13',t:'Frozen account',r:'bank fraud team',d:'Your account has been frozen. You call the bank to find out why.'},
+    {id:'bk14',t:'Asking about fees',r:'bank customer service',d:'You have been charged a fee you did not expect. You call to ask what it is for.'},
+    {id:'bk15',t:'Credit card application',r:'credit card advisor',d:'You want to apply for a credit card. You ask about the limit and eligibility.'},
+    {id:'bk16',t:'Overdraft request',r:'bank advisor',d:'You are going to run out of money before payday. You ask for a temporary overdraft.'},
+    {id:'bk17',t:'Savings account question',r:'bank advisor',d:'You want to start saving. You ask about different types of savings accounts.'},
+    {id:'bk18',t:'Speaking to a financial advisor',r:'financial advisor',d:'You have some money saved and want advice on how to invest it.'},
+    {id:'bk19',t:'Understanding your statement',r:'bank customer service',d:'You do not understand some transactions on your bank statement.'},
     {id:'bk20',t:'Closing an account',r:'bank advisor',d:'You want to close your account and move to a different bank.'},
   ]},
   {id:'housing',t:'Housing',i:'🏠',c:'#D35400',s:[
-    {id:'ho01',t:'Calling landlord about repairs',r:'landlord',d:'There is a leak in the kitchen and the heating is broken.'},
-    {id:'ho02',t:'Asking about a rent increase',r:'landlord',d:'Your landlord says your rent is going up.'},
-    {id:'ho03',t:'Giving notice to leave',r:'landlord',d:'You want to leave the property and give notice.'},
-    {id:'ho04',t:'Council housing application',r:'council housing officer',d:'You need social housing.'},
-    {id:'ho05',t:'Noise complaint to neighbour',r:'neighbour',d:'Your neighbour is playing loud music late at night.'},
-    {id:'ho06',t:'Reporting a maintenance issue',r:'housing association repair',d:'Your boiler is not working.'},
-    {id:'ho07',t:'Signing a tenancy agreement',r:'letting agent',d:'You are about to sign a tenancy agreement.'},
-    {id:'ho08',t:'Asking about the deposit',r:'letting agent',d:'You want to know how your deposit is protected.'},
-    {id:'ho09',t:'Utility bill problem',r:'energy company',d:'You have received an unexpectedly large energy bill.'},
-    {id:'ho10',t:'Parking dispute with neighbour',r:'neighbour',d:'Your neighbour keeps parking in your allocated space.'},
-    {id:'ho11',t:'Asking about subletting',r:'landlord',d:'A friend needs somewhere to stay. You ask about subletting.'},
-    {id:'ho12',t:'Requesting a reference',r:'current landlord',d:'You are moving to a new property and need a reference.'},
-    {id:'ho13',t:'Viewing a property',r:'estate agent',d:'You are viewing a house to rent.'},
-    {id:'ho14',t:'Making an offer on a property',r:'estate agent',d:'You want to buy a house and make an offer.'},
-    {id:'ho15',t:'Asking about council tax',r:'council tax office',d:'You do not understand your council tax bill.'},
-    {id:'ho16',t:'Reporting antisocial behaviour',r:'council officer',d:'There is serious antisocial behaviour in your area.'},
-    {id:'ho17',t:'Housing benefit inquiry',r:'benefits office',d:'You are struggling to pay rent.'},
-    {id:'ho18',t:'Talking to a letting agent',r:'letting agent',d:'You are looking for a flat to rent.'},
-    {id:'ho19',t:'Emergency gas leak',r:'emergency gas engineer',d:'You can smell gas in your home.'},
-    {id:'ho20',t:'Moving out inspection',r:'landlord',d:'Your landlord does a final inspection when you move out.'},
+    {id:'ho01',t:'Calling landlord about repairs',r:'landlord',d:'There is a leak in the kitchen and the heating is broken. You call your landlord.'},
+    {id:'ho02',t:'Asking about a rent increase',r:'landlord',d:'Your landlord has said your rent is going up. You call to discuss it.'},
+    {id:'ho03',t:'Giving notice to leave',r:'landlord',d:'You want to leave the property. You call to give notice and ask about the deposit.'},
+    {id:'ho04',t:'Council housing application',r:'council housing officer',d:'You need social housing. You go to the council office to ask how to apply.'},
+    {id:'ho05',t:'Noise complaint to neighbour',r:'neighbour',d:'Your neighbour is playing loud music late at night. You knock to speak to them.'},
+    {id:'ho06',t:'Reporting a maintenance issue',r:'housing association repair',d:'Your boiler is not working. You call the housing association repair line.'},
+    {id:'ho07',t:'Signing a tenancy agreement',r:'letting agent',d:'You are about to sign a tenancy agreement. You want to ask questions first.'},
+    {id:'ho08',t:'Asking about the deposit',r:'letting agent',d:'You want to know how your deposit is protected and when you will get it back.'},
+    {id:'ho09',t:'Utility bill problem',r:'energy company',d:'You have received an unexpectedly large energy bill. You call to question it.'},
+    {id:'ho10',t:'Parking dispute with neighbour',r:'neighbour',d:'Your neighbour keeps parking in your allocated space. You go to speak to them.'},
+    {id:'ho11',t:'Asking about subletting',r:'landlord',d:'A friend needs somewhere to stay. You ask your landlord if you can sublet a room.'},
+    {id:'ho12',t:'Requesting a reference',r:'current landlord',d:'You are moving to a new property and the new landlord needs a reference.'},
+    {id:'ho13',t:'Viewing a property',r:'estate agent',d:'You are viewing a house to rent. The agent shows you around and you ask questions.'},
+    {id:'ho14',t:'Making an offer on a property',r:'estate agent',d:'You want to buy a house and make an offer. You tell the agent how much you will pay.'},
+    {id:'ho15',t:'Asking about council tax',r:'council tax office',d:'You do not understand your council tax bill. You call to ask how it is calculated.'},
+    {id:'ho16',t:'Reporting antisocial behaviour',r:'council officer',d:'There is serious antisocial behaviour in your area. You call to report it.'},
+    {id:'ho17',t:'Housing benefit inquiry',r:'benefits office',d:'You are struggling to pay rent. You call to ask whether you qualify for housing benefit.'},
+    {id:'ho18',t:'Talking to a letting agent',r:'letting agent',d:'You are looking for a flat to rent. You visit a letting agent for the first time.'},
+    {id:'ho19',t:'Emergency gas leak',r:'emergency gas engineer',d:'You can smell gas in your home. You call the emergency line and explain.'},
+    {id:'ho20',t:'Moving out inspection',r:'landlord',d:'Your landlord does a final inspection when you move out. They mention some issues.'},
   ]},
   {id:'airport',t:'Airport',i:'✈️',c:'#1ABC9C',s:[
-    {id:'ap01',t:'Check-in at the desk',r:'airline check-in staff',d:'You go to the check-in desk with your passport.'},
-    {id:'ap02',t:'Bag drop',r:'bag drop staff',d:'You have checked in online. Your bag is slightly overweight.'},
-    {id:'ap03',t:'Going through security',r:'security officer',d:'At security, the officer tells you to remove items.'},
-    {id:'ap04',t:'Lost luggage claim',r:'lost luggage desk',d:'Your luggage did not arrive at the destination.'},
-    {id:'ap05',t:'Flight delay inquiry',r:'airline information desk',d:'Your flight is delayed by three hours.'},
-    {id:'ap06',t:'Gate information',r:'airport information staff',d:'The departure board is not showing your gate.'},
-    {id:'ap07',t:'Customs declaration',r:'customs officer',d:'You arrive from abroad. The officer asks if you have anything to declare.'},
-    {id:'ap08',t:'Getting a taxi from the airport',r:'taxi desk staff',d:'You want to get a taxi to your hotel.'},
-    {id:'ap09',t:'Currency exchange',r:'currency exchange staff',d:'You want to exchange some money before your trip.'},
-    {id:'ap10',t:'Duty-free shopping',r:'duty-free shop assistant',d:'You are in the duty-free area and ask about the allowance.'},
-    {id:'ap11',t:'Lounge access',r:'lounge reception',d:'You want to access the departure lounge.'},
-    {id:'ap12',t:'Boarding the plane',r:'gate staff',d:'You are at the gate. Staff scan your boarding pass.'},
-    {id:'ap13',t:'Special assistance request',r:'assistance staff',d:'You need a wheelchair to get to the gate.'},
-    {id:'ap14',t:'Border control passport check',r:'border force officer',d:'You are at the UK border. The officer asks about your visit.'},
-    {id:'ap15',t:'Connecting flight question',r:'airline transfer desk',d:'You have a tight connection. You ask if you will make it.'},
-    {id:'ap16',t:'Overweight luggage',r:'check-in staff',d:'Your bag is 5kg over the limit.'},
-    {id:'ap17',t:'Requesting a wheelchair',r:'assistance coordinator',d:'Your elderly parent needs a wheelchair through the airport.'},
-    {id:'ap18',t:'Flight cancellation compensation',r:'airline customer service',d:'Your flight has been cancelled.'},
-    {id:'ap19',t:'Talking to cabin crew',r:'flight attendant',d:'You are on the plane and need help.'},
-    {id:'ap20',t:'Travel insurance claim',r:'airport assistance desk',d:'Your trip has been disrupted and you need a letter for insurance.'},
+    {id:'ap01',t:'Check-in at the desk',r:'airline check-in staff',d:'You go to the check-in desk. Staff ask for your passport and question your bags.'},
+    {id:'ap02',t:'Bag drop',r:'airline bag drop staff',d:'You have already checked in online and go to bag drop. Your bag is slightly overweight.'},
+    {id:'ap03',t:'Going through security',r:'security officer',d:'At security, the officer tells you to remove items and put them in the tray.'},
+    {id:'ap04',t:'Lost luggage claim',r:'lost luggage desk',d:'Your luggage did not arrive. You go to the lost luggage desk to report it.'},
+    {id:'ap05',t:'Flight delay inquiry',r:'airline information desk',d:'Your flight is delayed by three hours. You ask about the cause and what you are entitled to.'},
+    {id:'ap06',t:'Gate information',r:'airport information staff',d:'The departure board is not showing your gate. You ask an airport staff member.'},
+    {id:'ap07',t:'Customs declaration',r:'customs officer',d:'You arrive from abroad. The customs officer asks if you have anything to declare.'},
+    {id:'ap08',t:'Getting a taxi from the airport',r:'taxi desk staff',d:'You want to get a taxi to your hotel. You ask about the cost and waiting time.'},
+    {id:'ap09',t:'Currency exchange',r:'currency exchange staff',d:'You want to exchange some money. You ask about the rate and any fees.'},
+    {id:'ap10',t:'Duty-free shopping',r:'duty-free shop assistant',d:'You are in the duty-free area. You ask about the allowance and whether items qualify.'},
+    {id:'ap11',t:'Lounge access',r:'lounge reception',d:'You want to access the departure lounge. You ask whether your ticket gives you access.'},
+    {id:'ap12',t:'Boarding the plane',r:'gate staff',d:'You are at the gate. The staff member scans your boarding pass and asks questions.'},
+    {id:'ap13',t:'Special assistance request',r:'special assistance staff',d:'You need a wheelchair to get to the gate. You go to the desk to arrange it.'},
+    {id:'ap14',t:'Border control passport check',r:'border force officer',d:'You are at the UK border. The officer asks the purpose of your visit.'},
+    {id:'ap15',t:'Connecting flight question',r:'airline transfer desk',d:'You have a tight connection. You ask whether you will make your next flight.'},
+    {id:'ap16',t:'Overweight luggage',r:'check-in staff',d:'Your bag is 5kg over the limit. The staff tell you the extra cost. You negotiate.'},
+    {id:'ap17',t:'Requesting a wheelchair',r:'assistance coordinator',d:'Your elderly parent needs a wheelchair through the airport. You arrange this.'},
+    {id:'ap18',t:'Flight cancellation compensation',r:'airline customer service',d:'Your flight has been cancelled. You ask about your rights and what they will offer.'},
+    {id:'ap19',t:'Talking to cabin crew',r:'flight attendant',d:'You are on the plane. You ask for a blanket, help with your bag, and meal options.'},
+    {id:'ap20',t:'Travel insurance claim',r:'airport assistance desk',d:'Your trip has been disrupted. You ask for a letter for an insurance claim.'},
   ]},
   {id:'police',t:'Police & Emergency',i:'👮',c:'#2C3E50',s:[
-    {id:'po01',t:'Calling 999',r:'999 emergency operator',d:'There is an emergency happening now. You call 999.'},
-    {id:'po02',t:'Reporting a theft',r:'police officer at station',d:'Your phone was stolen on the street.'},
-    {id:'po03',t:'Making a statement',r:'police officer',d:'You witnessed an accident. The police ask for a statement.'},
-    {id:'po04',t:'Asking police for help',r:'police officer',d:'You are lost and feel unsafe. You approach a police officer.'},
-    {id:'po05',t:'Road accident report',r:'police officer at scene',d:'You have been in a road accident.'},
-    {id:'po06',t:'Reporting a missing person',r:'police officer',d:'You cannot find your child or relative.'},
-    {id:'po07',t:'Hate crime report',r:'police officer',d:'You have been the victim of a hate crime.'},
-    {id:'po08',t:'Noise complaint',r:'non-emergency police',d:'Your neighbours are having a very loud party at 2am.'},
-    {id:'po09',t:'Lost passport',r:'police officer',d:'You have lost your passport.'},
-    {id:'po10',t:'Domestic situation report',r:'police officer',d:'You are concerned about what you heard next door.'},
-    {id:'po11',t:'Reporting vandalism',r:'police officer',d:'Someone has damaged your car overnight.'},
-    {id:'po12',t:'Traffic stop',r:'police officer',d:'A police officer pulls you over.'},
-    {id:'po13',t:'Online fraud report',r:'cybercrime officer',d:'You have been scammed online and lost money.'},
-    {id:'po14',t:'Child safety concern',r:'police officer',d:'You are concerned about a child\'s safety nearby.'},
-    {id:'po15',t:'Asking about bail',r:'custody sergeant',d:'A family member has been arrested.'},
-    {id:'po16',t:'Victim support inquiry',r:'victim support officer',d:'You have been the victim of a crime.'},
-    {id:'po17',t:'Witness to an incident',r:'police officer',d:'You saw a fight. The police ask what you witnessed.'},
-    {id:'po18',t:'Reporting drug activity',r:'police non-emergency',d:'You suspect drug dealing near your home.'},
-    {id:'po19',t:'Crime reference number',r:'police officer',d:'You have reported a crime and need a reference number.'},
-    {id:'po20',t:'Antisocial behaviour report',r:'police community officer',d:'You have been experiencing ongoing antisocial behaviour.'},
+    {id:'po01',t:'Calling 999',r:'999 emergency operator',d:'There is an emergency happening now. You call 999 and explain clearly.'},
+    {id:'po02',t:'Reporting a theft',r:'police officer at station',d:'Your phone was stolen on the street. You go to the station to report it.'},
+    {id:'po03',t:'Making a statement',r:'police officer',d:'You witnessed an accident. The police ask you to give a formal statement.'},
+    {id:'po04',t:'Asking police for help',r:'police officer',d:'You are lost and feel unsafe. You approach a police officer and explain.'},
+    {id:'po05',t:'Road accident report',r:'police officer at scene',d:'You have been in a road accident. The police arrive and ask what happened.'},
+    {id:'po06',t:'Reporting a missing person',r:'police officer',d:'You cannot find your child. You go to the police station and report them missing.'},
+    {id:'po07',t:'Hate crime report',r:'police officer',d:'You have been the victim of a hate crime. You report it at the station.'},
+    {id:'po08',t:'Noise complaint',r:'non-emergency police',d:'Your neighbours are having a very loud party at 2am. You call 101.'},
+    {id:'po09',t:'Lost passport',r:'police officer',d:'You have lost your passport. You report it at the station and ask what to do.'},
+    {id:'po10',t:'Domestic situation report',r:'police officer',d:'You are concerned about what you heard from the flat next door. You call to report.'},
+    {id:'po11',t:'Reporting vandalism',r:'police officer',d:'Someone has damaged your car overnight. You report it and ask about CCTV.'},
+    {id:'po12',t:'Traffic stop',r:'police officer',d:'A police officer pulls you over. They ask for your licence and insurance.'},
+    {id:'po13',t:'Online fraud report',r:'cybercrime officer',d:'You have been scammed online and lost money. You report it to the police.'},
+    {id:'po14',t:'Child safety concern',r:'police officer',d:'You are concerned about a child\'s safety nearby. You report your concerns.'},
+    {id:'po15',t:'Asking about bail',r:'custody sergeant',d:'A family member has been arrested. You go to the station to ask about bail.'},
+    {id:'po16',t:'Victim support inquiry',r:'victim support officer',d:'You have been the victim of a crime. An officer explains support services.'},
+    {id:'po17',t:'Witness to an incident',r:'police officer',d:'You saw a fight. The police approach you at the scene and ask what you witnessed.'},
+    {id:'po18',t:'Reporting drug activity',r:'police non-emergency',d:'You suspect drug dealing is happening near your home. You call 101.'},
+    {id:'po19',t:'Crime reference number',r:'police officer',d:'You have reported a crime and need a reference number for your insurance.'},
+    {id:'po20',t:'Antisocial behaviour report',r:'police community officer',d:'You have been experiencing ongoing antisocial behaviour. You make a formal complaint.'},
   ]},
   {id:'work',t:'Work',i:'💼',c:'#7F8C8D',s:[
-    {id:'w01',t:'Job interview introduction',r:'interviewer',d:'You are in a job interview. The interviewer asks about you.'},
-    {id:'w02',t:'Asking about salary',r:'interviewer',d:'The interviewer asks what salary you are looking for.'},
-    {id:'w03',t:'Calling in sick',r:'manager',d:'You are unwell and cannot go to work.'},
-    {id:'w04',t:'Asking for annual leave',r:'line manager',d:'You want to book two weeks off next month.'},
-    {id:'w05',t:'Contributing in a meeting',r:'team meeting',d:'You are in a team meeting. Your manager asks your opinion.'},
-    {id:'w06',t:'Asking a colleague for help',r:'colleague',d:'You are stuck on a task and need help.'},
-    {id:'w07',t:'Asking HR about your rights',r:'HR manager',d:'You are not sure about your rights regarding sick pay.'},
-    {id:'w08',t:'Resigning from a job',r:'line manager',d:'You have found a new job and want to resign formally.'},
-    {id:'w09',t:'Raising a grievance',r:'HR manager',d:'You have been treated unfairly at work.'},
-    {id:'w10',t:'Performance review',r:'line manager',d:'It is your annual performance review.'},
-    {id:'w11',t:'Asking about training',r:'line manager',d:'You want to develop your skills.'},
-    {id:'w12',t:'Working from home request',r:'line manager',d:'You want to work from home two days a week.'},
-    {id:'w13',t:'Payslip query',r:'payroll department',d:'Your payslip looks wrong this month.'},
-    {id:'w14',t:'Asking for a reference',r:'former manager',d:'You are applying for a new job and need a reference.'},
-    {id:'w15',t:'First day induction',r:'HR induction coordinator',d:'It is your first day at a new job.'},
-    {id:'w16',t:'Workplace accident report',r:'health and safety officer',d:'You had a minor accident at work.'},
-    {id:'w17',t:'Pension inquiry',r:'HR pension advisor',d:'You want to understand your workplace pension.'},
-    {id:'w18',t:'Promotion discussion',r:'line manager',d:'You feel ready for promotion.'},
-    {id:'w19',t:'Disciplinary meeting',r:'HR manager',d:'You have been called to a disciplinary meeting.'},
-    {id:'w20',t:'Handing over to a colleague',r:'colleague',d:'You are going on leave and need to brief your colleague.'},
+    {id:'w01',t:'Job interview introduction',r:'interviewer',d:'You are in a job interview. The interviewer asks you to tell them about yourself.'},
+    {id:'w02',t:'Asking about salary',r:'interviewer',d:'The interviewer asks what salary you are looking for. You explain your expectation.'},
+    {id:'w03',t:'Calling in sick',r:'manager',d:'You are unwell and cannot go to work. You call your manager to explain.'},
+    {id:'w04',t:'Asking for annual leave',r:'line manager',d:'You want to book two weeks off next month. You speak to your manager.'},
+    {id:'w05',t:'Contributing in a meeting',r:'team meeting',d:'You are in a team meeting. Your manager asks for your opinion on a new project.'},
+    {id:'w06',t:'Asking a colleague for help',r:'colleague',d:'You are stuck on a task and need help from a more experienced colleague.'},
+    {id:'w07',t:'Asking HR about your rights',r:'HR manager',d:'You are not sure about your rights regarding sick pay. You speak to HR.'},
+    {id:'w08',t:'Resigning from a job',r:'line manager',d:'You have found a new job. You go to your manager to formally resign.'},
+    {id:'w09',t:'Raising a grievance',r:'HR manager',d:'You have been treated unfairly at work. You go to HR to raise a formal grievance.'},
+    {id:'w10',t:'Performance review',r:'line manager',d:'It is your annual performance review. Your manager gives you feedback.'},
+    {id:'w11',t:'Asking about training',r:'line manager',d:'You want to develop your skills. You ask about available training courses.'},
+    {id:'w12',t:'Working from home request',r:'line manager',d:'You want to work from home two days a week. You put the request to your manager.'},
+    {id:'w13',t:'Payslip query',r:'payroll department',d:'Your payslip looks wrong this month. You call payroll to query the amount.'},
+    {id:'w14',t:'Asking for a reference',r:'former manager',d:'You are applying for a new job. You call a former manager to ask for a reference.'},
+    {id:'w15',t:'First day induction',r:'HR induction coordinator',d:'It is your first day at a new job. You go through induction and ask questions.'},
+    {id:'w16',t:'Workplace accident report',r:'health and safety officer',d:'You had a minor accident at work. You report it to the health and safety officer.'},
+    {id:'w17',t:'Pension inquiry',r:'HR pension advisor',d:'You want to understand your workplace pension contributions.'},
+    {id:'w18',t:'Promotion discussion',r:'line manager',d:'You feel ready for promotion. You arrange a meeting with your manager.'},
+    {id:'w19',t:'Disciplinary meeting',r:'HR manager',d:'You have been called to a disciplinary meeting. You need to respond calmly.'},
+    {id:'w20',t:'Handing over to a colleague',r:'colleague',d:'You are going on leave. You brief your colleague on your ongoing tasks.'},
   ]},
   {id:'phone',t:'Phone Calls',i:'📞',c:'#9B59B6',s:[
-    {id:'ph01',t:'Calling customer service',r:'customer service agent',d:'You have a problem with a product. You call customer service.'},
-    {id:'ph02',t:'Being put on hold',r:'customer service agent',d:'The agent puts you on hold several times.'},
-    {id:'ph03',t:'Asking to speak to a manager',r:'call centre supervisor',d:'The agent cannot solve your problem.'},
-    {id:'ph04',t:'Making a complaint by phone',r:'customer service agent',d:'You received very poor service.'},
-    {id:'ph05',t:'Booking by phone',r:'booking staff',d:'You want to book an appointment by phone.'},
-    {id:'ph06',t:'Cancelling a subscription',r:'subscription service agent',d:'You want to cancel a subscription.'},
-    {id:'ph07',t:'Wrong number',r:'the person who answers',d:'You have dialled a wrong number.'},
-    {id:'ph08',t:'Leaving a voicemail',r:'voicemail system',d:'No one answers. You leave a clear voicemail.'},
-    {id:'ph09',t:'Asking for a callback',r:'customer service agent',d:'The wait time is very long.'},
-    {id:'ph10',t:'Broadband support call',r:'internet tech support',d:'Your internet is not working.'},
-    {id:'ph11',t:'Billing dispute by phone',r:'billing department',d:'You have been charged incorrectly on your bill.'},
-    {id:'ph12',t:'Insurance claim call',r:'insurance claim handler',d:'You need to make an insurance claim.'},
-    {id:'ph13',t:'Calling the council',r:'council helpline',d:'You need to speak to your local council.'},
-    {id:'ph14',t:'Confirming an order',r:'retailer order team',d:'You placed an order and did not receive a confirmation.'},
-    {id:'ph15',t:'Tracking a delivery',r:'courier customer service',d:'Your parcel is late.'},
-    {id:'ph16',t:'Asking for a quote',r:'trades company',d:'You need a plumber or electrician. You ask for a quote.'},
-    {id:'ph17',t:'Energy company call',r:'energy company agent',d:'You want to question your bill or switch supplier.'},
-    {id:'ph18',t:'Declining a cold call',r:'cold caller',d:'You receive an unsolicited sales call.'},
-    {id:'ph19',t:'Charity fundraising call',r:'charity fundraiser',d:'A charity calls asking for a donation.'},
-    {id:'ph20',t:'Checking opening hours',r:'shop or office staff',d:'You call ahead to check hours before visiting.'},
+    {id:'ph01',t:'Calling customer service',r:'customer service agent',d:'You have a problem with a product. You call the company\'s customer service line.'},
+    {id:'ph02',t:'Being put on hold',r:'customer service agent',d:'The agent puts you on hold several times. You explain your frustration and continue.'},
+    {id:'ph03',t:'Asking to speak to a manager',r:'call centre supervisor',d:'The agent cannot solve your problem. You politely ask to be transferred to a manager.'},
+    {id:'ph04',t:'Making a complaint by phone',r:'customer service agent',d:'You received very poor service. You make a formal complaint over the phone.'},
+    {id:'ph05',t:'Booking by phone',r:'booking staff',d:'You want to book a doctor appointment or restaurant table by calling on the phone.'},
+    {id:'ph06',t:'Cancelling a subscription',r:'subscription service agent',d:'You want to cancel a subscription. The agent tries to keep you. You hold firm.'},
+    {id:'ph07',t:'Wrong number',r:'the person who answers',d:'You have dialled a wrong number. You apologise and ask if they know the right number.'},
+    {id:'ph08',t:'Leaving a voicemail',r:'voicemail system',d:'No one answers. You leave a clear voicemail with your name and reason for calling.'},
+    {id:'ph09',t:'Asking for a callback',r:'customer service agent',d:'The wait time is very long. You ask if someone can call you back when available.'},
+    {id:'ph10',t:'Broadband support call',r:'internet provider tech support',d:'Your internet is not working. You call tech support and go through troubleshooting.'},
+    {id:'ph11',t:'Billing dispute by phone',r:'billing department',d:'You have been charged incorrectly on your bill. You call to dispute it.'},
+    {id:'ph12',t:'Insurance claim call',r:'insurance claim handler',d:'You need to make an insurance claim. You call to report the incident.'},
+    {id:'ph13',t:'Calling the council',r:'council helpline',d:'You need to speak to your local council about a service or payment.'},
+    {id:'ph14',t:'Confirming an order',r:'retailer order team',d:'You placed an order online but have not received a confirmation. You call to check.'},
+    {id:'ph15',t:'Tracking a delivery',r:'courier customer service',d:'Your parcel is late. You call the courier to find out what has happened.'},
+    {id:'ph16',t:'Asking for a quote',r:'trades company',d:'You need a plumber or electrician. You call to ask for a quote.'},
+    {id:'ph17',t:'Energy company call',r:'energy company agent',d:'You want to switch energy supplier or question a bill. You call the company.'},
+    {id:'ph18',t:'Declining a cold call',r:'cold caller',d:'You receive an unsolicited sales call. You decline politely but firmly.'},
+    {id:'ph19',t:'Charity fundraising call',r:'charity fundraiser',d:'A charity calls asking for a donation. You listen and then respond.'},
+    {id:'ph20',t:'Checking opening hours',r:'shop or office staff',d:'You call ahead to check hours and ask any questions before visiting.'},
   ]},
   {id:'council',t:'Council & Government',i:'🏛️',c:'#1A5276',s:[
-    {id:'co01',t:'Registering to vote',r:'electoral officer',d:'You want to register to vote.'},
-    {id:'co02',t:'Council tax reduction',r:'council tax office',d:'You are on a low income and ask about a reduction.'},
-    {id:'co03',t:'Reporting a pothole',r:'council highways',d:'There is a large pothole outside your home.'},
-    {id:'co04',t:'Universal Credit inquiry',r:'DWP benefits advisor',d:'You need financial support.'},
-    {id:'co05',t:'Child benefit question',r:'HMRC helpline',d:'You want to claim child benefit.'},
-    {id:'co06',t:'Passport application',r:'post office staff',d:'You are applying for a UK passport.'},
-    {id:'co07',t:'Biometric Residence Permit',r:'UKVI helpline',d:'You need to collect or renew your BRP.'},
-    {id:'co08',t:'National Insurance number',r:'DWP helpline',d:'You do not have a National Insurance number.'},
-    {id:'co09',t:'Driving licence application',r:'DVLA helpline',d:'You want to exchange a foreign driving licence.'},
-    {id:'co10',t:'Benefits assessment appointment',r:'assessment centre staff',d:'You attend a benefits assessment.'},
-    {id:'co11',t:'Housing association inquiry',r:'housing association staff',d:'You are on the housing waiting list.'},
+    {id:'co01',t:'Registering to vote',r:'electoral registration officer',d:'You want to register to vote. You ask an officer how to do it.'},
+    {id:'co02',t:'Council tax reduction',r:'council tax office',d:'You are on a low income. You go to the council to ask about a reduction.'},
+    {id:'co03',t:'Reporting a pothole',r:'council highways department',d:'There is a large pothole outside your home. You call the council to report it.'},
+    {id:'co04',t:'Universal Credit inquiry',r:'DWP benefits advisor',d:'You need financial support. You call to ask whether you qualify and how to apply.'},
+    {id:'co05',t:'Child benefit question',r:'HMRC child benefit',d:'You want to claim child benefit. You call to ask how to apply.'},
+    {id:'co06',t:'Passport application',r:'post office staff',d:'You are applying for a UK passport. You go to the post office for the check service.'},
+    {id:'co07',t:'Biometric Residence Permit',r:'UKVI helpline',d:'You need to collect or renew your Biometric Residence Permit.'},
+    {id:'co08',t:'National Insurance number',r:'DWP helpline',d:'You do not have a National Insurance number. You call to find out how to apply.'},
+    {id:'co09',t:'Driving licence application',r:'DVLA helpline',d:'You want to exchange a foreign driving licence for a UK one.'},
+    {id:'co10',t:'Benefits assessment appointment',r:'assessment centre staff',d:'You attend a benefits assessment. The assessor asks about your health and situation.'},
+    {id:'co11',t:'Housing association inquiry',r:'housing association staff',d:'You are on the housing waiting list. You call to check your position.'},
     {id:'co12',t:'Library card registration',r:'library staff',d:'You go to the local library to register for a card.'},
-    {id:'co13',t:'Recycling collection problem',r:'council waste team',d:'Your bins have not been collected for three weeks.'},
-    {id:'co14',t:'Planning permission question',r:'council planning officer',d:'You want to build an extension.'},
-    {id:'co15',t:'School admissions application',r:'council admissions team',d:'You are applying for a school place for your child.'},
-    {id:'co16',t:'NHS GP registration',r:'GP receptionist',d:'You have just arrived in the UK and need to register with a GP.'},
+    {id:'co13',t:'Recycling collection problem',r:'council waste team',d:'Your bins have not been collected for three weeks. You call the council.'},
+    {id:'co14',t:'Planning permission question',r:'council planning officer',d:'You want to build an extension. You ask whether you need planning permission.'},
+    {id:'co15',t:'School admissions application',r:'council admissions team',d:'You are applying for a school place. You call about the process and deadlines.'},
+    {id:'co16',t:'NHS GP registration',r:'GP receptionist',d:'You have just arrived in the UK and need to register with a local GP.'},
     {id:'co17',t:'Immigration status check',r:'UKVI helpline',d:'You want to check the progress of your visa application.'},
     {id:'co18',t:'Marriage registration',r:'register office staff',d:'You want to register your marriage in the UK.'},
-    {id:'co19',t:'Death certificate application',r:'register office staff',d:'A family member has died. You go to register the death.'},
+    {id:'co19',t:'Death certificate application',r:'register office staff',d:'A family member has died. You go to the register office to register the death.'},
     {id:'co20',t:'Power of attorney inquiry',r:'solicitor',d:'You want to set up a power of attorney for an elderly relative.'},
   ]},
   {id:'daily',t:'Daily Life',i:'🌍',c:'#229954',s:[
-    {id:'dl01',t:'Sending a parcel',r:'post office counter staff',d:'You want to send a parcel to your family abroad.'},
-    {id:'dl02',t:'Asking someone for the time',r:'stranger on the street',d:'Your phone has died. You ask a stranger for the time.'},
-    {id:'dl03',t:'Getting a haircut',r:'barber or hairdresser',d:'You sit in the chair at the barber.'},
-    {id:'dl04',t:'Joining a gym',r:'gym membership advisor',d:'You visit a gym for the first time.'},
-    {id:'dl05',t:'Asking at the library',r:'librarian',d:'You want to find a specific book.'},
+    {id:'dl01',t:'Sending a parcel',r:'post office counter staff',d:'You want to send a parcel to your family abroad. You ask about options and cost.'},
+    {id:'dl02',t:'Asking someone for the time',r:'stranger on the street',d:'Your phone has died. You ask a stranger politely what the time is.'},
+    {id:'dl03',t:'Getting a haircut',r:'barber or hairdresser',d:'You sit in the chair at the barber. They ask what you would like.'},
+    {id:'dl04',t:'Joining a gym',r:'gym membership advisor',d:'You visit a gym for the first time. You ask about membership prices and facilities.'},
+    {id:'dl05',t:'Asking at the library',r:'librarian',d:'You want to find a specific book. You ask the librarian for help.'},
     {id:'dl06',t:'Talking to the postman',r:'delivery person',d:'The postman knocks with a parcel that needs a signature.'},
-    {id:'dl07',t:'Buying medicine at the pharmacy',r:'pharmacist',d:'You have a cold and a sore throat.'},
-    {id:'dl08',t:'At the petrol station',r:'petrol station cashier',d:'You fill up your car and go inside to pay.'},
-    {id:'dl09',t:'At the launderette',r:'launderette owner',d:'You go to a launderette for the first time.'},
-    {id:'dl10',t:'At the dry cleaner',r:'dry cleaner staff',d:'You bring a suit in with a stain.'},
-    {id:'dl11',t:'Asking at an information desk',r:'information desk staff',d:'You are in a new place and confused.'},
-    {id:'dl12',t:'Greeting at a place of worship',r:'community member',d:'You attend a place of worship for the first time.'},
-    {id:'dl13',t:'Asking directions on the street',r:'local resident',d:'You are lost and ask a passing local for directions.'},
-    {id:'dl14',t:'Community centre inquiry',r:'community centre receptionist',d:'You visit a community centre.'},
-    {id:'dl15',t:'At a charity shop',r:'charity shop volunteer',d:'You are in a charity shop looking for something.'},
+    {id:'dl07',t:'Buying medicine at the pharmacy',r:'pharmacist',d:'You have a cold and a sore throat. You go to the pharmacy and ask for help.'},
+    {id:'dl08',t:'At the petrol station',r:'petrol station cashier',d:'You fill up your car and go inside to pay. You also ask about a carwash.'},
+    {id:'dl09',t:'At the launderette',r:'launderette owner',d:'You go to a launderette for the first time. You ask how the machines work.'},
+    {id:'dl10',t:'At the dry cleaner',r:'dry cleaner staff',d:'You bring a suit in with a stain. You explain the stain and when you need it back.'},
+    {id:'dl11',t:'Asking at an information desk',r:'information desk staff',d:'You are in a new place and confused. You go to an information desk with questions.'},
+    {id:'dl12',t:'Greeting at a place of worship',r:'community member',d:'You attend a place of worship for the first time. You greet someone and introduce yourself.'},
+    {id:'dl13',t:'Asking directions on the street',r:'local resident',d:'You are lost and ask a passing local for directions to your destination.'},
+    {id:'dl14',t:'Community centre inquiry',r:'community centre receptionist',d:'You visit a community centre. You ask about events and classes available.'},
+    {id:'dl15',t:'At a charity shop',r:'charity shop volunteer',d:'You are in a charity shop looking for something specific. You ask for help.'},
     {id:'dl16',t:'At the newsagent',r:'newsagent owner',d:'You go to the newsagent to buy a paper and top up your phone.'},
-    {id:'dl17',t:'Borrowing from a neighbour',r:'neighbour',d:'You need to borrow a tool from your neighbour.'},
-    {id:'dl18',t:'Leaving a parcel for a neighbour',r:'delivery person',d:'A delivery arrives for your neighbour who is out.'},
-    {id:'dl19',t:'Asking about local events',r:'community centre staff',d:'You want to know about local events this weekend.'},
-    {id:'dl20',t:'Talking to a new neighbour',r:'neighbour',d:'You have just moved in. You knock to introduce yourself.'},
+    {id:'dl17',t:'Borrowing from a neighbour',r:'neighbour',d:'You need to borrow a tool from your neighbour. You knock and ask politely.'},
+    {id:'dl18',t:'Leaving a parcel for a neighbour',r:'delivery person',d:'A delivery arrives for your neighbour. You take the parcel and sign for it.'},
+    {id:'dl19',t:'Asking about local events',r:'community centre staff',d:'You want to know about local events happening this weekend.'},
+    {id:'dl20',t:'Talking to a new neighbour',r:'neighbour',d:'You have just moved in. You knock to introduce yourself to the neighbour next door.'},
   ]},
   {id:'social',t:'Social',i:'🤝',c:'#F39C12',s:[
     {id:'so01',t:'Introducing yourself at a gathering',r:'person at an event',d:'You arrive at a social event where you do not know many people.'},
-    {id:'so02',t:'Small talk about the weather',r:'colleague or neighbour',d:'You meet a colleague. They start talking about the weather.'},
-    {id:'so03',t:'Asking where someone is from',r:'new acquaintance',d:'You are chatting with someone new.'},
-    {id:'so04',t:'Talking about your job',r:'new acquaintance',d:'Someone asks what you do for work.'},
-    {id:'so05',t:'Giving a compliment',r:'colleague or friend',d:'You want to compliment someone on their work.'},
-    {id:'so06',t:'Declining an invitation politely',r:'friend who invited you',d:'Someone invites you to an event but you cannot go.'},
-    {id:'so07',t:'Saying goodbye',r:'friend or colleague',d:'You are leaving a job or moving house. You say goodbye.'},
-    {id:'so08',t:'Congratulating someone',r:'friend with good news',d:'A friend just got a new job.'},
-    {id:'so09',t:'Apologising',r:'person you offended',d:'You made a mistake and need to apologise.'},
-    {id:'so10',t:'Asking for a favour',r:'friend or neighbour',d:'You need help and ask politely.'},
-    {id:'so11',t:'Talking about your family',r:'new friend',d:'Someone asks about your family.'},
+    {id:'so02',t:'Small talk about the weather',r:'colleague or neighbour',d:'You meet a colleague briefly. They start talking about the weather.'},
+    {id:'so03',t:'Asking where someone is from',r:'new acquaintance',d:'You are chatting with someone new. You want to ask where they are from.'},
+    {id:'so04',t:'Talking about your job',r:'new acquaintance',d:'Someone asks what you do for work. You explain your job simply.'},
+    {id:'so05',t:'Giving a compliment',r:'colleague or friend',d:'You want to compliment someone on their work or something they have done.'},
+    {id:'so06',t:'Declining an invitation politely',r:'friend who invited you',d:'Someone invites you to an event but you cannot go. You decline politely.'},
+    {id:'so07',t:'Saying goodbye',r:'friend or colleague',d:'You are leaving a job or moving house. You say goodbye warmly.'},
+    {id:'so08',t:'Congratulating someone',r:'friend with good news',d:'A friend just got a new job. You congratulate them warmly.'},
+    {id:'so09',t:'Apologising',r:'person you offended',d:'You made a mistake and need to apologise genuinely.'},
+    {id:'so10',t:'Asking for a favour',r:'friend or neighbour',d:'You need help — a lift or something borrowed. You ask politely.'},
+    {id:'so11',t:'Talking about your family',r:'new friend',d:'Someone asks about your family. You talk about them naturally.'},
     {id:'so12',t:'Discussing weekend plans',r:'colleague on a Friday',d:'A colleague asks what you are doing this weekend.'},
-    {id:'so13',t:'Talking about food you enjoy',r:'new friend',d:'Someone asks about your favourite foods.'},
-    {id:'so14',t:'Asking about hobbies',r:'new acquaintance',d:'You want to find common ground with someone.'},
+    {id:'so13',t:'Talking about food you enjoy',r:'new friend',d:'Someone asks about your favourite foods. You share and ask about theirs.'},
+    {id:'so14',t:'Asking about hobbies',r:'new acquaintance',d:'You want to find common ground. You ask about their hobbies and share yours.'},
     {id:'so15',t:'Making plans to meet again',r:'new friend',d:'You have had a nice conversation and want to meet again.'},
-    {id:'so16',t:'Expressing surprise',r:'friend sharing unexpected news',d:'A friend shares surprising news.'},
-    {id:'so17',t:'Disagreeing politely',r:'friend with different opinion',d:'Someone says something you disagree with.'},
-    {id:'so18',t:'At a sports event',r:'fellow supporter',d:'You are watching a local match.'},
-    {id:'so19',t:'At a community festival',r:'event organiser',d:'You are at a local community festival.'},
-    {id:'so20',t:'Dealing with a misunderstanding',r:'friend who misunderstood',d:'There has been a misunderstanding.'},
+    {id:'so16',t:'Expressing surprise',r:'friend sharing unexpected news',d:'A friend shares surprising news. You react naturally.'},
+    {id:'so17',t:'Disagreeing politely',r:'friend with different opinion',d:'Someone says something you disagree with. You express your view respectfully.'},
+    {id:'so18',t:'At a sports event',r:'fellow supporter',d:'You are watching a local match. You talk to the person next to you.'},
+    {id:'so19',t:'At a community festival',r:'event organiser or attendee',d:'You are at a local festival. You chat with people and ask questions.'},
+    {id:'so20',t:'Dealing with a misunderstanding',r:'friend who misunderstood',d:'There has been a misunderstanding. You calmly explain what you actually meant.'},
   ]},
 ];
-const TOTAL=CATS.reduce((t,c)=>t+c.s.length,0);
+const TOTAL = CATS.reduce((t,c)=>t+c.s.length,0);
 
-// STORAGE
-const K={c:'lc_c',l:'lc_l',str:'lc_str',last:'lc_last',fd:'lc_fd',fs:'lc_fs',pt:'lc_pt',pr:'lc_pr'};
-const S={
-  hasConsent(){return localStorage.getItem(K.c)==='1'},
-  setConsent(){localStorage.setItem(K.c,'1')},
-  getLang(){try{return JSON.parse(localStorage.getItem(K.l))}catch{return null}},
-  setLang(v){localStorage.setItem(K.l,JSON.stringify(v))},
-  getStreak(){return parseInt(localStorage.getItem(K.str)||'0',10)},
-  incStreak(){const t=new Date().toDateString(),l=localStorage.getItem(K.last);if(l===t)return this.getStreak();const y=new Date(Date.now()-86400000).toDateString(),s=l===y?this.getStreak()+1:1;localStorage.setItem(K.str,s);localStorage.setItem(K.last,t);return s;},
-  FREE:180,
-  freeUsed(){const t=new Date().toDateString();if(localStorage.getItem(K.fd)!==t){localStorage.setItem(K.fd,t);localStorage.setItem(K.fs,'0');return 0;}return parseInt(localStorage.getItem(K.fs)||'0',10);},
-  addFree(n){localStorage.setItem(K.fs,String(this.freeUsed()+n))},
-  freeLeft(){return Math.max(0,this.FREE-this.freeUsed())},
-  isPremium(){const t=localStorage.getItem(K.pt);if(!t)return false;try{const p=JSON.parse(atob(t.split('.')[1]));return p.premium&&p.exp*1000>Date.now();}catch{return false;}},
-  setPremium(t){localStorage.setItem(K.pt,t)},
-  getProgress(){try{return JSON.parse(localStorage.getItem(K.pr)||'{}')}catch{return{}}},
-  markDone(id){const p=this.getProgress();p[id]={done:true};localStorage.setItem(K.pr,JSON.stringify(p))},
-  isDone(id){return!!this.getProgress()[id]?.done},
-  clearAll(){Object.values(K).forEach(k=>localStorage.removeItem(k))},
-};
-
-// NAV
-let prevSc='s-dash';
-function nav(id,back){
-  if(!back)prevSc=document.querySelector('.sc.on')?.id||'s-dash';
-  document.querySelectorAll('.sc').forEach(s=>s.classList.remove('on'));
-  document.getElementById(id).classList.add('on');
-  if(id==='s-dash')buildDash();
-  if(id==='s-settings')buildSettings();
+async function api(method, path, body) {
+  const h = {'Content-Type':'application/json'};
+  if (token) h['Authorization'] = 'Bearer ' + token;
+  const r = await fetch(path, {method, headers:h, body: body ? JSON.stringify(body) : undefined});
+  const d = await r.json().catch(() => ({}));
+  if (!r.ok) throw new Error(d.error || 'Request failed');
+  return d;
 }
-function navBack(){nav(prevSc);}
 
-// BOOT
-window.addEventListener('load',()=>{
-  if('serviceWorker' in navigator)navigator.serviceWorker.register('/sw.js').catch(()=>{});
-  buildPrivacy();buildInterpSelects();buildConsentChecks();
-  if(new URLSearchParams(location.search).get('payment')==='success')history.replaceState({},'','/');
-  setTimeout(()=>{
-    if(!S.hasConsent()){nav('s-consent');return;}
-    const lang=S.getLang();
-    if(!lang){nav('s-lang');renderLangs();return;}
-    currentLang=lang;nav('s-dash');
-  },500);
+function freeUsed() {
+  const t = new Date().toDateString();
+  if (localStorage.getItem('lc_d') !== t) { localStorage.setItem('lc_d',t); localStorage.setItem('lc_s','0'); return 0; }
+  return parseInt(localStorage.getItem('lc_s')||'0',10);
+}
+function addFree(n) { localStorage.setItem('lc_s', String(freeUsed()+n)); }
+function freeLeft() { return Math.max(0, FREE_SECS - freeUsed()); }
+
+function go(id, back) {
+  if (!back) prevSc = document.querySelector('.sc.on')?.id || 's-dash';
+  document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
+  document.getElementById(id).classList.add('on');
+  if (id === 's-dash') buildDash();
+  if (id === 's-settings') buildSettings();
+}
+
+window.addEventListener('load', () => {
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
+  buildConsentBoxes();
+  buildInterpSelects();
+  token = localStorage.getItem('lc_tok');
+  const params = new URLSearchParams(location.search);
+  if (params.get('payment') === 'success') history.replaceState({}, '', '/');
+  if (token) {
+    document.getElementById('load-msg').textContent = 'Loading your data...';
+    api('GET', '/user/stats').then(d => {
+      userData = d;
+      if (!d.consent) { go('s-consent'); return; }
+      if (!d.language) { renderLangs(); go('s-lang'); return; }
+      currentLang = LANGS.find(l => l.c === d.language) || LANGS[0];
+      go('s-dash');
+    }).catch(() => { localStorage.removeItem('lc_tok'); token = null; go('s-auth'); });
+  } else {
+    go('s-auth');
+  }
 });
 
-// CONSENT
-function buildConsentChecks(){
-  const items=[
-    {k:'age',txt:'<b>Age</b> — I confirm I am 13 or older.'},
-    {k:'gdpr',txt:'<b>Privacy (GDPR)</b> — My conversations are processed in real-time by Gemini AI and not stored after the session. No personal data collected.'},
-    {k:'ai',txt:'<b>AI Notice (EU AI Act)</b> — I understand Lingi Coach is an AI system, not a human coach.'},
+let authMode = 'login';
+function authTab(m) {
+  authMode = m;
+  const li = m === 'login';
+  document.getElementById('t-li').style.cssText = `flex:1;padding:8px;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:${li?'var(--pri)':'transparent'};color:${li?'#fff':'var(--txl)'}`;
+  document.getElementById('t-su').style.cssText = `flex:1;padding:8px;border:none;border-radius:10px;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer;background:${!li?'var(--pri)':'transparent'};color:${!li?'#fff':'var(--txl)'}`;
+  document.getElementById('name-row').style.display = li ? 'none' : 'block';
+  document.getElementById('auth-btn').textContent = li ? 'Log in' : 'Create account';
+  document.getElementById('forgot-row').style.display = li ? 'block' : 'none';
+  document.getElementById('auth-msg').innerHTML = '';
+}
+async function doAuth() {
+  const email = document.getElementById('a-email').value.trim();
+  const pass  = document.getElementById('a-pass').value;
+  const name  = document.getElementById('a-name').value.trim();
+  if (!email || !pass) { setMsg('auth-msg','Please fill in all fields.','err'); return; }
+  const btn = document.getElementById('auth-btn');
+  btn.innerHTML = '<span class="spin"></span>'; btn.disabled = true;
+  try {
+    const path = authMode === 'signup' ? '/auth/signup' : '/auth/login';
+    const body = authMode === 'signup' ? {email, password:pass, name} : {email, password:pass};
+    const d = await api('POST', path, body);
+    if (authMode === 'signup' && !d.access_token) {
+      setMsg('auth-msg', 'Account created! Check your email to confirm, then log in.', 'ok');
+      authTab('login'); btn.innerHTML = 'Log in'; btn.disabled = false; return;
+    }
+    token = d.access_token;
+    localStorage.setItem('lc_tok', token);
+    userData = await api('GET', '/user/stats');
+    if (!userData.consent) { go('s-consent'); return; }
+    if (!userData.language) { renderLangs(); go('s-lang'); return; }
+    currentLang = LANGS.find(l => l.c === userData.language) || LANGS[0];
+    go('s-dash');
+  } catch(e) {
+    setMsg('auth-msg', e.message, 'err');
+    btn.innerHTML = authMode === 'login' ? 'Log in' : 'Create account'; btn.disabled = false;
+  }
+}
+async function doForgot() {
+  const email = document.getElementById('a-email').value.trim();
+  if (!email) { setMsg('auth-msg','Enter your email above first.','err'); return; }
+  await api('POST', '/auth/forgot', {email});
+  setMsg('auth-msg', 'Reset email sent. Check your inbox.', 'ok');
+}
+async function doLogout() {
+  localStorage.removeItem('lc_tok'); token = null; userData = null; currentLang = null;
+  go('s-auth');
+}
+
+function buildConsentBoxes() {
+  const items = [
+    '<b>Age</b> — I confirm I am 13 or older.',
+    '<b>Privacy (GDPR)</b> — My conversations are processed in real-time by Gemini AI and not stored after the session. My account data is stored securely.',
+    '<b>AI Notice (EU AI Act)</b> — I understand Lingi Coach is an AI system, not a human coach.',
   ];
-  document.getElementById('chks').innerHTML=items.map(i=>`<label style="display:flex;gap:11px;padding:12px;background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r-sm);margin-bottom:9px;cursor:pointer" onclick="this.classList.toggle('chked');tickCheck()" id="chk-${i.k}"><input type="checkbox" style="width:19px;height:19px;accent-color:var(--primary);flex-shrink:0;margin-top:2px" onchange="tickCheck()"/><p style="font-size:13px;color:var(--text-md);line-height:1.5">${i.txt}</p></label>`).join('');
+  document.getElementById('chks').innerHTML = items.map(txt =>
+    `<label style="display:flex;gap:11px;padding:12px;background:var(--sur);border:1.5px solid var(--bdr);border-radius:var(--rs);margin-bottom:9px;cursor:pointer">
+      <input type="checkbox" style="width:19px;height:19px;accent-color:var(--pri);flex-shrink:0;margin-top:2px" onchange="tickCon(this)"/>
+      <p style="font-size:13px;color:var(--txm);line-height:1.5">${txt}</p>
+    </label>`
+  ).join('');
 }
-function tickCheck(){
-  const ok=[...document.querySelectorAll('#chks input')].every(i=>i.checked);
-  document.getElementById('con-btn').disabled=!ok;
-  document.querySelectorAll('#chks label').forEach(l=>{
-    const chk=l.querySelector('input');
-    l.style.borderColor=chk.checked?'var(--primary)':'var(--border)';
-    l.style.background=chk.checked?'#EAF5EE':'var(--surface)';
-  });
+function tickCon(inp) {
+  const lbl = inp.closest('label');
+  lbl.style.borderColor = inp.checked ? 'var(--pri)' : 'var(--bdr)';
+  lbl.style.background  = inp.checked ? '#EAF5EE' : 'var(--sur)';
+  const ok = [...document.querySelectorAll('#chks input')].every(i => i.checked);
+  document.getElementById('con-btn').disabled = !ok;
 }
-function acceptConsent(){S.setConsent();nav('s-lang');renderLangs();}
+async function acceptConsent() {
+  await api('POST', '/user/consent');
+  renderLangs(); go('s-lang');
+}
 
-// LANGUAGE
-let currentLang=null,selLang=null;
-function renderLangs(){
-  const q=(document.getElementById('lang-q').value||'').toLowerCase();
-  const list=LANGS.filter(l=>l.c!=='en'&&(l.n.toLowerCase().includes(q)||l.v.toLowerCase().includes(q)));
-  document.getElementById('lang-grid').innerHTML=list.map(l=>`<button onclick="selL('${l.c}')" style="background:${selLang?.c===l.c?'#EAF5EE':'var(--surface)'};border:2px solid ${selLang?.c===l.c?'var(--primary)':'var(--border)'};border-radius:var(--r-sm);padding:11px 9px;cursor:pointer;display:flex;align-items:center;gap:8px;outline:none;-webkit-tap-highlight-color:transparent;text-align:left">
-    <span style="font-size:23px;flex-shrink:0">${l.f}</span>
-    <div><div style="font-weight:700;font-size:13px;color:${selLang?.c===l.c?'var(--primary)':'var(--text)'}">${l.v}</div><div style="font-size:10px;color:var(--text-lt)">${l.n}</div></div>
-    ${selLang?.c===l.c?'<span style="margin-left:auto;color:var(--primary);font-size:13px">✓</span>':''}
-  </button>`).join('');
+function renderLangs() {
+  const q = (document.getElementById('lang-q')?.value || '').toLowerCase();
+  const list = LANGS.filter(l => l.c !== 'en' && (l.n.toLowerCase().includes(q) || l.v.toLowerCase().includes(q)));
+  document.getElementById('lang-grid').innerHTML = list.map(l =>
+    `<button onclick="selL('${l.c}')" style="background:${selLang?.c===l.c?'#EAF5EE':'var(--sur)'};border:2px solid ${selLang?.c===l.c?'var(--pri)':'var(--bdr)'};border-radius:var(--rs);padding:11px 9px;cursor:pointer;display:flex;align-items:center;gap:8px;outline:none;-webkit-tap-highlight-color:transparent;text-align:left">
+      <span style="font-size:23px;flex-shrink:0">${l.f}</span>
+      <div><div style="font-weight:700;font-size:13px;color:${selLang?.c===l.c?'var(--pri)':'var(--txt)'}">${l.v}</div><div style="font-size:10px;color:var(--txl)">${l.n}</div></div>
+      ${selLang?.c===l.c?'<span style="margin-left:auto;color:var(--pri);font-size:13px">✓</span>':''}
+    </button>`
+  ).join('');
 }
-function selL(code){selLang=LANGS.find(l=>l.c===code);const b=document.getElementById('lang-btn');b.disabled=false;b.textContent=`Start with ${selLang.v} →`;renderLangs();}
-function confirmLang(){if(!selLang)return;currentLang=selLang;S.setLang(currentLang);nav('s-dash');}
+function selL(code) {
+  selLang = LANGS.find(l => l.c === code);
+  const b = document.getElementById('lang-btn');
+  b.disabled = false; b.textContent = `Start with ${selLang.v} →`;
+  renderLangs();
+}
+async function confirmLang() {
+  if (!selLang) return;
+  await api('POST', '/user/language', {language: selLang.c});
+  currentLang = selLang;
+  userData = await api('GET', '/user/stats');
+  go('s-dash');
+}
 
-// DASHBOARD
-function buildDash(){
-  const done=Object.values(S.getProgress()).filter(v=>v.done).length;
-  const fl=S.freeLeft(),pm=S.isPremium();
-  document.getElementById('dlbl').textContent=`${currentLang?.f||''} ${currentLang?.v||''}`;
-  document.getElementById('ds').textContent=`🔥 ${S.getStreak()}`;
-  document.getElementById('dd').textContent=`${done}/${TOTAL}`;
-  document.getElementById('dt').textContent=pm?'∞':`${Math.floor(fl/60)}:${String(fl%60).padStart(2,'0')}`;
-  document.getElementById('dt').style.color=pm?'#FFD700':'#fff';
-  document.getElementById('dtl').textContent=pm?'Unlimited':'Free left';
-  document.getElementById('probadge').style.display=pm?'inline-flex':'none';
-  document.getElementById('cat-grid').innerHTML=CATS.map(cat=>{
-    const cd=cat.s.filter(s=>S.isDone(s.id)).length;
-    const pct=Math.round(cd/cat.s.length*100);
-    return`<button onclick="openCat('${cat.id}')" style="background:var(--surface);border:1.5px solid var(--border);border-radius:var(--r);padding:13px 11px;cursor:pointer;text-align:left;outline:none;-webkit-tap-highlight-color:transparent">
+async function buildDash() {
+  const d = userData || await api('GET', '/user/stats').catch(() => ({}));
+  userData = d;
+  const fl = freeLeft(), pm = d.is_premium;
+  document.getElementById('d-lbl').textContent = `${currentLang?.f||''} ${currentLang?.v||''}`;
+  document.getElementById('d-str').textContent  = `🔥 ${d.streak||0}`;
+  document.getElementById('d-don').textContent  = `${d.done||0}/${TOTAL}`;
+  document.getElementById('d-tim').textContent  = pm ? '∞' : `${Math.floor(fl/60)}:${String(fl%60).padStart(2,'0')}`;
+  document.getElementById('d-tim').style.color  = pm ? '#FFD700' : '#fff';
+  document.getElementById('d-tl').textContent   = pm ? 'Unlimited' : 'Free left';
+  document.getElementById('pro-badge').style.display = pm ? 'inline-flex' : 'none';
+  const prog = new Set(d.progress || []);
+  document.getElementById('cat-grid').innerHTML = CATS.map(cat => {
+    const cd  = cat.s.filter(s => prog.has(s.id)).length;
+    const pct = Math.round(cd / cat.s.length * 100);
+    return `<button onclick="openCat('${cat.id}')" style="background:var(--sur);border:1.5px solid var(--bdr);border-radius:var(--r);padding:13px 11px;cursor:pointer;text-align:left;outline:none;-webkit-tap-highlight-color:transparent">
       <div style="font-size:24px;margin-bottom:4px">${cat.i}</div>
-      <div style="font-weight:800;font-size:12px;color:var(--text);margin-bottom:2px">${cat.t}</div>
-      <div style="font-size:9px;color:var(--text-lt);margin-bottom:5px">${cat.s.length} scenarios</div>
-      <div style="height:3px;background:var(--surface2);border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${cat.c};border-radius:99px"></div></div>
-      <div style="font-size:8px;color:var(--text-lt);margin-top:2px">${cd}/${cat.s.length} done</div>
+      <div style="font-weight:800;font-size:12px;margin-bottom:2px">${cat.t}</div>
+      <div style="font-size:9px;color:var(--txl);margin-bottom:5px">${cat.s.length} scenarios</div>
+      <div style="height:3px;background:var(--sur2);border-radius:99px;overflow:hidden"><div style="height:100%;width:${pct}%;background:${cat.c};border-radius:99px"></div></div>
+      <div style="font-size:8px;color:var(--txl);margin-top:2px">${cd}/${cat.s.length} done</div>
     </button>`;
   }).join('');
 }
 
-// CATEGORY
-let currentCat=null,currentSc=null;
-function openCat(id){
-  currentCat=CATS.find(c=>c.id===id);
-  document.getElementById('cat-ttl').textContent=`${currentCat.i} ${currentCat.t}`;
-  document.getElementById('cat-sub').textContent=`${currentCat.s.length} scenarios`;
-  document.getElementById('sc-list').innerHTML=currentCat.s.map((s,i)=>`<button onclick="openSc('${s.id}')" style="width:100%;background:var(--surface);border:1.5px solid ${S.isDone(s.id)?currentCat.c+'44':'var(--border)'};border-radius:var(--r-sm);padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:11px;outline:none;-webkit-tap-highlight-color:transparent;text-align:left">
-    <div style="width:28px;height:28px;border-radius:8px;background:${S.isDone(s.id)?currentCat.c+'22':'var(--surface2)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${S.isDone(s.id)?currentCat.c:'var(--text-lt)'};flex-shrink:0">${S.isDone(s.id)?'✓':i+1}</div>
-    <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px;color:${S.isDone(s.id)?'var(--text-md)':'var(--text)'}">${s.t}</div><div style="font-size:10px;color:var(--text-lt);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">As: ${s.r}</div></div>
-    <span style="color:var(--text-lt);font-size:13px">→</span>
-  </button>`).join('');
-  nav('s-cat');
-}
-function openSc(id){
-  if(!S.isPremium()&&S.freeLeft()<=0){openPay();return;}
-  currentSc=currentCat.s.find(s=>s.id===id);
-  startChat();
+async function openCat(id) {
+  currentCat = CATS.find(c => c.id === id);
+  const prog = new Set((userData?.progress) || []);
+  document.getElementById('cat-ttl').textContent = `${currentCat.i} ${currentCat.t}`;
+  document.getElementById('cat-sub').textContent = `${currentCat.s.length} scenarios`;
+  document.getElementById('sc-list').innerHTML = currentCat.s.map((s,i) => {
+    const done = prog.has(s.id);
+    return `<button onclick="openSc('${s.id}')" style="width:100%;background:var(--sur);border:1.5px solid ${done?currentCat.c+'44':'var(--bdr)'};border-radius:var(--rs);padding:11px 13px;margin-bottom:7px;cursor:pointer;display:flex;align-items:center;gap:11px;outline:none;-webkit-tap-highlight-color:transparent;text-align:left">
+      <div style="width:28px;height:28px;border-radius:8px;background:${done?currentCat.c+'22':'var(--sur2)'};display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;color:${done?currentCat.c:'var(--txl)'};flex-shrink:0">${done?'✓':i+1}</div>
+      <div style="flex:1;min-width:0"><div style="font-weight:700;font-size:13px">${s.t}</div><div style="font-size:10px;color:var(--txl);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">As: ${s.r}</div></div>
+      <span style="color:var(--txl);font-size:13px">→</span>
+    </button>`;
+  }).join('');
+  go('s-cat');
 }
 
-// CHAT
-let sid=null,cLoad=false,cListen=false,timerInt=null,elapsed=0,msgCount=0,chatRec=null;
-function startChat(){
-  document.getElementById('ch-title').textContent=currentSc.t;
-  document.getElementById('ch-sub').textContent=`As: ${currentSc.r} · ${currentLang.f} ${currentLang.v}`;
-  document.getElementById('msgs').innerHTML='';
-  document.getElementById('cin').value='';
-  document.getElementById('cin').style.height='auto';
-  updSnd();elapsed=0;msgCount=0;clearInterval(timerInt);
-  nav('s-chat');S.incStreak();
-  if(!S.isPremium()){
+// ── openSc → now goes to Listen first ─────────────────────────────────────
+async function openSc(id) {
+  if (!userData?.is_premium && freeLeft() <= 0) { openPay(); return; }
+  currentSc = currentCat.s.find(s => s.id === id);
+  await loadListenScreen();
+}
+
+// ── LISTEN / LEARN ─────────────────────────────────────────────────────────
+async function loadListenScreen() {
+  document.getElementById('ls-ttl').textContent  = currentSc.t;
+  document.getElementById('lrn-ttl').textContent = currentSc.t;
+  document.getElementById('ls-conv').innerHTML   =
+    '<div style="text-align:center;padding:50px 20px;color:var(--txl);font-size:13px">⏳ Generating conversation…</div>';
+  go('s-listen');
+  try {
+    demoData  = await api('POST', '/scenario/demo', { title: currentSc.t, situation: currentSc.d, role: currentSc.r });
+    convLines = demoData.conversation || [];
+    renderConversation();
+    renderPhrases();
+  } catch(e) {
+    document.getElementById('ls-conv').innerHTML =
+      `<div style="padding:20px;color:#991B1B;font-size:13px;text-align:center">Could not load. ${e.message}</div>`;
+  }
+}
+
+function renderConversation() {
+  document.getElementById('ls-conv').innerHTML = convLines.map((line, i) => {
+    const isA = line.speaker === 'A';
+    return `<div style="display:flex;justify-content:${isA?'flex-start':'flex-end'};margin-bottom:12px">
+      <div style="max-width:84%">
+        <div style="font-size:10px;color:var(--txl);font-weight:700;margin-bottom:3px;${isA?'':'text-align:right'}">${line.label||line.speaker}</div>
+        <div style="background:${isA?'var(--aib)':'var(--pri)'};color:${isA?'var(--txt)':'#fff'};padding:10px 13px;border-radius:${isA?'14px 14px 14px 4px':'14px 14px 4px 14px'};font-size:13px;line-height:1.55;font-weight:500">${line.text}</div>
+        <div style="margin-top:4px;${isA?'':'text-align:right'}">
+          <button onclick="speakConvLine(${i})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--pri);font-weight:700;padding:2px 0">🔊 Listen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPhrases() {
+  const phrases = demoData?.key_phrases || [];
+  document.getElementById('lrn-phrases').innerHTML = phrases.map((p, i) => `
+    <div style="display:flex;align-items:center;gap:12px;background:var(--sur);border:1.5px solid var(--bdr);border-radius:var(--rs);padding:14px;margin-bottom:10px">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--pri);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+      <div style="flex:1;font-weight:700;font-size:14px;color:var(--txt);line-height:1.4">${p}</div>
+      <button onclick="speakText(${JSON.stringify(p)})" style="background:var(--pri);color:#fff;border:none;border-radius:99px;padding:6px 13px;font-weight:700;font-size:12px;cursor:pointer;flex-shrink:0">🔊</button>
+    </div>`
+  ).join('');
+}
+
+function speakConvLine(idx) {
+  if (convLines[idx]) speakText(convLines[idx].text);
+}
+
+function playAllConv() {
+  if (!convLines.length) return;
+  convIdx = 0; convPlaying = true;
+  const btn = document.getElementById('ls-play-btn');
+  btn.textContent = '⏹ Stop';
+  btn.onclick = stopAllConv;
+  playNextLine();
+}
+function stopAllConv() {
+  convPlaying = false;
+  window.speechSynthesis?.cancel();
+  const btn = document.getElementById('ls-play-btn');
+  if (btn) { btn.textContent = '▶ Play All'; btn.onclick = playAllConv; }
+}
+function playNextLine() {
+  if (!convPlaying || convIdx >= convLines.length) { stopAllConv(); return; }
+  const line   = convLines[convIdx];
+  const voices = window.speechSynthesis?.getVoices() || [];
+  const enV    = voices.filter(v => v.lang.startsWith('en'));
+  const utt    = new SpeechSynthesisUtterance(line.text);
+  utt.lang  = 'en-GB'; utt.rate = 0.9;
+  if (line.speaker === 'A' && enV.length > 0) utt.voice = enV[0];
+  if (line.speaker === 'B' && enV.length > 1) utt.voice = enV[1];
+  utt.onend  = () => { convIdx++; setTimeout(playNextLine, 500); };
+  utt.onerror = () => { convIdx++; setTimeout(playNextLine, 500); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utt);
+}
+
+function startPractice() { startChat(); }
+
+// ── CHAT ──────────────────────────────────────────────────────────────────
+async function startChat() {
+  document.getElementById('ch-ttl').textContent = currentSc.t;
+  document.getElementById('ch-sub').textContent = `As: ${currentSc.r} · ${currentLang.f} ${currentLang.v}`;
+  document.getElementById('msgs').innerHTML = '';
+  document.getElementById('cin').value = ''; document.getElementById('cin').style.height = 'auto';
+  updSnd(); msgCount = 0; clearInterval(timerInt); go('s-chat');
+  api('POST', '/user/streak').then(d => { if (userData) userData.streak = d.streak; }).catch(()=>{});
+  if (!userData?.is_premium) {
     updTimer();
-    timerInt=setInterval(()=>{elapsed++;S.addFree(1);updTimer();if(S.freeLeft()<=0){clearInterval(timerInt);openPay();}},1000);
+    timerInt = setInterval(() => { addFree(1); updTimer(); if (freeLeft() <= 0) { clearInterval(timerInt); openPay(); } }, 1000);
   } else {
-    document.getElementById('ch-timer').textContent='⭐ Pro';
-    document.getElementById('ch-timer').style.background='rgba(246,166,35,.3)';
+    const t = document.getElementById('ch-tmr');
+    t.textContent = '⭐ Pro'; t.style.background = 'rgba(246,166,35,.3)';
   }
-  beginSession();
+  if (window.speechSynthesis) {
+    window.speechSynthesis.cancel();
+    const wake = new SpeechSynthesisUtterance('');
+    window.speechSynthesis.speak(wake);
+    window.speechSynthesis.getVoices();
+  }
+  bubble('ai', null, true);
+  try {
+    const d = await api('POST', '/session/start', {
+      native_language_code: currentLang.c, scenario_id: currentSc.id,
+      scenario_title: currentSc.t, ai_role: currentSc.r, situation: currentSc.d,
+      consent_given: true, age_verified: true
+    });
+    sid = d.session_id; rmTyping(); bubble('ai', d.message);
+  } catch(e) { rmTyping(); errMsg(e.message); }
 }
-function updTimer(){const fl=S.freeLeft();const t=document.getElementById('ch-timer');t.textContent=`⏱ ${Math.floor(fl/60)}:${String(fl%60).padStart(2,'0')}`;t.style.background=fl<30?'rgba(192,57,43,.7)':'rgba(255,255,255,.15)';}
-async function beginSession(){
-  addMsg('ai',null,true);
-  try{
-    const d=await API.start({native_language_code:currentLang.c,scenario_id:currentSc.id,scenario_title:currentSc.t,ai_role:currentSc.r,situation:currentSc.d,consent_given:true,age_verified:true});
-    sid=d.session_id;rmTyping();addMsg('ai',d.message);
-  }catch(e){rmTyping();addErr(e.message);}
+function updTimer() {
+  const fl = freeLeft(), t = document.getElementById('ch-tmr');
+  t.textContent = `⏱ ${Math.floor(fl/60)}:${String(fl%60).padStart(2,'0')}`;
+  t.style.background = fl < 30 ? 'rgba(192,57,43,.7)' : 'rgba(255,255,255,.15)';
 }
-function endChat(){clearInterval(timerInt);if(sid)API.del(sid).catch(()=>{});sid=null;nav('s-cat');}
-function restartChat(){clearInterval(timerInt);if(sid)API.del(sid).catch(()=>{});sid=null;startChat();}
-async function doSend(txt){
-  const m=(txt||document.getElementById('cin').value).trim();
-  if(!m||!sid||cLoad)return;
-  if(!S.isPremium()&&S.freeLeft()<=0){openPay();return;}
-  document.getElementById('cin').value='';document.getElementById('cin').style.height='auto';updSnd();
-  addMsg('user',m);cLoad=true;addMsg('ai',null,true);
-  try{const d=await API.chat(sid,m);rmTyping();addMsg('ai',d.message);msgCount++;if(msgCount>=6)S.markDone(currentSc.id);}
-  catch(e){rmTyping();if(e.message.includes('expired')||e.message.includes('not found'))addErr('Session expired. Tap ↺ to restart.');else addErr(e.message);}
-  finally{cLoad=false;}
+function endChat() { clearInterval(timerInt); if(sid) api('DELETE',`/session/${sid}`).catch(()=>{}); sid=null; go('s-cat'); }
+function restartChat() { clearInterval(timerInt); if(sid) api('DELETE',`/session/${sid}`).catch(()=>{}); sid=null; startChat(); }
+async function sendMsg(txt) {
+  const m = (txt || document.getElementById('cin').value).trim();
+  if (!m || !sid || chatLoading) return;
+  if (!userData?.is_premium && freeLeft() <= 0) { openPay(); return; }
+  document.getElementById('cin').value = ''; document.getElementById('cin').style.height = 'auto'; updSnd();
+  bubble('user', m); chatLoading = true; bubble('ai', null, true);
+  try {
+    const d = await api('POST', '/session/chat', {session_id: sid, message: m});
+    rmTyping(); bubble('ai', d.message); msgCount++;
+    if (msgCount >= 6) {
+      api('POST', '/user/progress', {scenario_id: currentSc.id}).then(() => {
+        if (userData?.progress && !userData.progress.includes(currentSc.id))
+          userData.progress.push(currentSc.id);
+      }).catch(()=>{});
+    }
+  } catch(e) {
+    rmTyping();
+    if (e.message.includes('expired') || e.message.includes('not found')) errMsg('Session expired. Tap ↺ to restart.');
+    else errMsg(e.message);
+  } finally { chatLoading = false; }
 }
-function addMsg(role,text,typing){
-  const box=document.getElementById('msgs');
-  const row=document.createElement('div');row.style.cssText=`display:flex;justify-content:${role==='user'?'flex-end':'flex-start'};margin-bottom:8px`;
-  if(typing)row.id='typing';
-  if(role==='ai'){const av=document.createElement('div');av.style.cssText='width:25px;height:25px;border-radius:7px;background:var(--primary);display:flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px;align-self:flex-end;flex-shrink:0';av.textContent='🎓';row.appendChild(av);}
-  const b=document.createElement('div');b.className=`bb ${role==='user'?'usr':'ai'}`;
-  b.innerHTML=typing?'<span class="dots"><span></span><span></span><span></span></span>':(text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
-  row.appendChild(b);box.appendChild(row);box.scrollTop=box.scrollHeight;
+let ttsEnabled = true;
+function speakText(text) {
+  if (!ttsEnabled || !window.speechSynthesis) return;
+  window.speechSynthesis.cancel();
+  let clean = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
+  clean = clean.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
+  clean = clean.replace(/[^\x00-\x7F]/g, "");
+  clean = clean.replace(/\s+/g, " ").trim();
+  if (!clean) return;
+  const utt    = new SpeechSynthesisUtterance(clean);
+  const voices = window.speechSynthesis.getVoices();
+  const enVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
+  utt.voice = enVoice; utt.lang = 'en-GB'; utt.rate = 0.95; utt.pitch = 1.0;
+  window.speechSynthesis.speak(utt);
 }
-function rmTyping(){const t=document.getElementById('typing');if(t)t.remove();}
-function addErr(msg){const box=document.getElementById('msgs');const d=document.createElement('div');d.style.cssText='background:#FEE2E2;border:1px solid #FCA5A5;border-radius:var(--r-sm);padding:8px 12px;font-size:12px;color:#991B1B;text-align:center;margin-bottom:7px';d.textContent=msg;box.appendChild(d);box.scrollTop=box.scrollHeight;}
-function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,88)+'px';updSnd();}
-function updSnd(){const v=document.getElementById('cin').value.trim();const b=document.getElementById('snd');b.style.background=v&&!cLoad?'var(--primary)':'var(--surface2)';b.style.color=v&&!cLoad?'#fff':'var(--text-lt)';b.style.cursor=v&&!cLoad?'pointer':'default';}
-function kd(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();doSend();}}
-function toggleMic(){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){alert('Voice not supported on this browser. Please type.');return;}
-  if(cListen){chatRec?.stop();return;}
-  const r=new SR();r.lang='en-GB';r.continuous=false;r.interimResults=false;
-  const mb=document.getElementById('mic');
-  r.onstart=()=>{cListen=true;mb.textContent='⏹';mb.style.background='#FEE2E2';mb.style.color='#C0392B';mb.style.animation='pulse 1s infinite';};
-  r.onend=()=>{cListen=false;mb.textContent='🎤';mb.style.background='var(--surface2)';mb.style.color='var(--primary)';mb.style.animation='none';};
-  r.onerror=()=>{cListen=false;mb.textContent='🎤';mb.style.background='var(--surface2)';mb.style.color='var(--primary)';mb.style.animation='none';};
-  r.onresult=(e)=>{const t=e.results[0][0].transcript;document.getElementById('cin').value=t;updSnd();setTimeout(()=>doSend(t),300);};
-  chatRec=r;r.start();
+function bubble(role, text, typing) {
+  const box = document.getElementById('msgs');
+  const row = document.createElement('div');
+  row.style.cssText = `display:flex;justify-content:${role==='user'?'flex-end':'flex-start'};margin-bottom:8px`;
+  if (typing) row.id = 'typing';
+  if (role === 'ai') {
+    const av = document.createElement('div');
+    av.style.cssText = 'width:25px;height:25px;border-radius:7px;background:var(--pri);display:flex;align-items:center;justify-content:center;font-size:11px;margin-right:6px;align-self:flex-end;flex-shrink:0';
+    av.textContent = '🎓'; row.appendChild(av);
+  }
+  const bWrap = document.createElement('div');
+  bWrap.style.cssText = 'display:flex;flex-direction:column;max-width:78%;gap:4px';
+  const b = document.createElement('div'); b.className = `bb ${role==='user'?'me':'ai'}`;
+  b.style.maxWidth = '100%';
+  b.innerHTML = typing ? '<span class="dots"><span></span><span></span><span></span></span>'
+                       : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
+  bWrap.appendChild(b);
+  if (role === 'ai' && !typing && text) {
+    const listenBtn = document.createElement('button');
+    const msgText = text;
+    listenBtn.innerHTML = '🔊 Listen';
+    listenBtn.style.cssText = 'align-self:flex-start;background:var(--pri);color:#fff;border:none;border-radius:99px;padding:4px 12px;font-weight:700;font-size:11px;cursor:pointer;opacity:.85';
+    listenBtn.onclick = () => speakText(msgText);
+    bWrap.appendChild(listenBtn);
+  }
+  row.appendChild(bWrap); box.appendChild(row); box.scrollTop = box.scrollHeight;
+  if (role === 'ai' && !typing && text) {
+    window._lastAIText = text;
+    setTimeout(() => speakText(text), 150);
+  }
+}
+function rmTyping() { const t = document.getElementById('typing'); if(t) t.remove(); }
+function errMsg(msg) {
+  const box = document.getElementById('msgs');
+  const d = document.createElement('div');
+  d.style.cssText = 'background:#FEE2E2;border:1px solid #FCA5A5;border-radius:var(--rs);padding:8px 12px;font-size:12px;color:#991B1B;text-align:center;margin-bottom:7px';
+  d.textContent = msg; box.appendChild(d); box.scrollTop = box.scrollHeight;
+}
+function resizeTa(el) { el.style.height = 'auto'; el.style.height = Math.min(el.scrollHeight,88)+'px'; updSnd(); }
+function updSnd() {
+  const v = document.getElementById('cin').value.trim();
+  const b = document.getElementById('snd-btn');
+  b.style.background = v && !chatLoading ? 'var(--pri)' : 'var(--sur2)';
+  b.style.color = v && !chatLoading ? '#fff' : 'var(--txl)';
+  b.style.cursor = v && !chatLoading ? 'pointer' : 'default';
+}
+function chatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }
+function replayAI() { if (window._lastAIText) speakText(window._lastAIText); }
+function toggleTTS() {
+  ttsEnabled = !ttsEnabled;
+  const btn = document.getElementById('tts-btn');
+  btn.textContent = ttsEnabled ? '🔊' : '🔇';
+  btn.style.opacity = ttsEnabled ? '1' : '0.5';
+  if (!ttsEnabled) window.speechSynthesis.cancel();
+}
+function toggleMic() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Voice input not supported on this browser. Please type.'); return; }
+  if (micOn) { chatRec?.stop(); return; }
+  const r = new SR(); r.lang = 'en-GB'; r.continuous = false; r.interimResults = false;
+  const mb = document.getElementById('mic-btn');
+  r.onstart = () => { micOn=true; mb.textContent='⏹'; mb.style.background='#FEE2E2'; mb.style.color='#C0392B'; mb.style.animation='pulse 1s infinite'; };
+  r.onend   = () => { micOn=false; mb.textContent='🎤'; mb.style.background='var(--sur2)'; mb.style.color='var(--pri)'; mb.style.animation='none'; };
+  r.onerror = () => { micOn=false; mb.textContent='🎤'; mb.style.background='var(--sur2)'; mb.style.color='var(--pri)'; mb.style.animation='none'; };
+  r.onresult = e => { const t=e.results[0][0].transcript; document.getElementById('cin').value=t; updSnd(); setTimeout(()=>sendMsg(t),300); };
+  chatRec = r; r.start();
 }
 
-// INTERPRET
-let recA=null,recB=null,trA={},trB={};
-function buildInterpSelects(){
-  const opts=LANGS.map(l=>`<option value="${l.c}">${l.f} ${l.n}</option>`).join('');
-  document.getElementById('la').innerHTML=opts;document.getElementById('lb').innerHTML=opts;
-  document.getElementById('la').value='bn';document.getElementById('lb').value='en';
+function buildInterpSelects() {
+  const opts = LANGS.map(l => `<option value="${l.c}">${l.f} ${l.n}</option>`).join('');
+  document.getElementById('la').innerHTML = opts; document.getElementById('lb').innerHTML = opts;
+  document.getElementById('la').value = 'bn'; document.getElementById('lb').value = 'en';
 }
-function getLang(code){return LANGS.find(l=>l.c===code)||LANGS[0];}
-function listenPanel(p){
-  const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
-  if(!SR){alert('Voice not supported on this browser.');return;}
-  const fc=document.getElementById(`l${p}`).value;
-  const tc=document.getElementById(p==='a'?'lb':'la').value;
-  const fl=getLang(fc);
-  const r=new SR();r.lang=fl.s||fc;r.continuous=false;r.interimResults=false;
-  const btn=document.getElementById(`mb${p}`);
-  r.onstart=()=>{btn.textContent='⏹ Release';btn.style.background='#FEE2E2';btn.style.color='#C0392B';};
-  r.onend=()=>{btn.textContent='🎤 Speak';btn.style.background=p==='a'?'var(--primary)':'var(--accent)';btn.style.color='#fff';};
-  r.onerror=()=>{r.onend();};
-  r.onresult=async(e)=>{
-    const txt=e.results[0][0].transcript;
-    document.getElementById(`o${p}`).textContent=txt;
-    document.getElementById(`h${p}`).style.display='none';
-    document.getElementById(`t${p}`).style.display='none';
-    document.getElementById(`pb${p}`).style.display='none';
-    try{
-      const res=await API.tr(txt,fc,tc);
-      document.getElementById(`t${p}`).textContent=res.translation;
-      document.getElementById(`t${p}`).style.display='block';
-      document.getElementById(`pb${p}`).style.display='inline-flex';
-      if(p==='a')trA={txt:res.translation,code:tc};else trB={txt:res.translation,code:tc};
-    }catch{document.getElementById(`t${p}`).textContent='Translation failed.';document.getElementById(`t${p}`).style.display='block';}
+function getLang(c) { return LANGS.find(l => l.c === c) || LANGS[0]; }
+function listenP(p) {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!SR) { alert('Voice not supported on this browser.'); return; }
+  const fc = document.getElementById(`l${p}`).value;
+  const tc = document.getElementById(p==='a'?'lb':'la').value;
+  const r  = new SR(); r.lang = getLang(fc).s||fc; r.continuous=false; r.interimResults=false;
+  const btn = document.getElementById(`mb${p}`);
+  r.onstart = () => { btn.textContent='⏹ Release'; btn.style.background='#FEE2E2'; btn.style.color='#C0392B'; };
+  r.onend   = () => { btn.textContent='🎤 Speak'; btn.style.background=p==='a'?'var(--pri)':'var(--acc)'; btn.style.color='#fff'; };
+  r.onerror = () => { btn.textContent='🎤 Speak'; btn.style.background=p==='a'?'var(--pri)':'var(--acc)'; btn.style.color='#fff'; };
+  r.onresult = async e => {
+    const txt = e.results[0][0].transcript;
+    document.getElementById(`o${p}`).textContent = txt;
+    document.getElementById(`h${p}`).style.display = 'none';
+    document.getElementById(`t${p}`).style.display = 'none';
+    document.getElementById(`pb${p}`).style.display = 'none';
+    try {
+      const res = await api('POST', '/translate', {text:txt, from_lang_code:fc, to_lang_code:tc});
+      document.getElementById(`t${p}`).textContent = res.translation;
+      document.getElementById(`t${p}`).style.display = 'block';
+      document.getElementById(`pb${p}`).style.display = 'inline-flex';
+      if (p==='a') trA={txt:res.translation,code:tc}; else trB={txt:res.translation,code:tc};
+    } catch(err) { document.getElementById(`t${p}`).textContent='Translation failed.'; document.getElementById(`t${p}`).style.display='block'; }
   };
-  if(p==='a')recA=r;else recB=r;
-  r.start();
+  if (p==='a') recA=r; else recB=r; r.start();
 }
-function stopPanel(p){if(p==='a')recA?.stop();else recB?.stop();}
-function playPanel(p){
-  const t=p==='a'?trA:trB;if(!t.txt||!window.speechSynthesis)return;
-  const u=new SpeechSynthesisUtterance(t.txt);u.lang=getLang(t.code).s||t.code;
-  window.speechSynthesis.cancel();window.speechSynthesis.speak(u);
+function stopP(p) { if(p==='a') recA?.stop(); else recB?.stop(); }
+function playP(p) {
+  const t = p==='a' ? trA : trB; if (!t.txt || !window.speechSynthesis) return;
+  const u = new SpeechSynthesisUtterance(t.txt); u.lang = getLang(t.code).s||t.code;
+  window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
 }
 
-// SETTINGS
-function buildSettings(){
-  const pm=S.isPremium(),done=Object.values(S.getProgress()).filter(v=>v.done).length;
-  const rows=[
-    ['Language',`${currentLang?.f||''} ${currentLang?.v||''}`,"S.setLang(null);selLang=null;nav('s-lang');renderLangs();"],
-    ['Streak',`🔥 ${S.getStreak()} days`,''],
-    ['Completed',`${done} scenarios`,''],
-    ['Plan',pm?'⭐ Pro':'Free (3 min/day)',pm?'':'openPay()'],
-    ['Privacy Policy','','prevSc="s-settings";nav("s-privacy");'],
-    ['Reset all data','?',"if(confirm('Reset all data?')){S.clearAll();location.reload();}",true],
+async function buildSettings() {
+  const d = await api('GET', '/user/stats').catch(() => userData||{});
+  userData = d;
+  const rows = [
+    ['Language', `${currentLang?.f||''} ${currentLang?.v||''}`, "selLang=null;renderLangs();go('s-lang');"],
+    ['Streak',   `🔥 ${d.streak||0} days`, ''],
+    ['Completed',`${d.done||0} scenarios`, ''],
+    ['Plan',     d.is_premium?'⭐ Pro':'Free (3 min/day)', d.is_premium?'':'openPay()'],
   ];
-  document.getElementById('srows').innerHTML=rows.map(([l,v,a,d])=>`<div ${a?`onclick="${a.replace(/"/g,"'")}"`:''} style="display:flex;align-items:center;justify-content:space-between;padding:12px 13px;background:var(--surface);border-radius:var(--r-sm);margin-bottom:7px;cursor:${a?'pointer':'default'};border:1px solid var(--border)">
-    <span style="font-weight:700;font-size:13px;color:${d?'#C0392B':'var(--text)'}">${l}</span>
-    <span style="font-size:12px;color:${a&&!d?'var(--primary)':'var(--text-lt)'};font-weight:600">${v||'→'}</span>
-  </div>`).join('');
+  document.getElementById('s-rows').innerHTML = rows.map(([l,v,a]) =>
+    `<div ${a?`onclick="${a}"`:''} style="display:flex;align-items:center;justify-content:space-between;padding:12px 13px;background:var(--sur);border-radius:var(--rs);margin-bottom:7px;cursor:${a?'pointer':'default'};border:1px solid var(--bdr)">
+      <span style="font-weight:700;font-size:13px">${l}</span>
+      <span style="font-size:12px;color:${a?'var(--pri)':'var(--txl)'};font-weight:600">${v}</span>
+    </div>`
+  ).join('');
 }
 
-// PAYWALL
-function openPay(){ptab('up');document.getElementById('paywall').classList.add('on');}
-function closePay(){document.getElementById('paywall').classList.remove('on');}
-let pwPlan='monthly';
-function ptab(t){
-  ['up','red'].forEach(id=>{const b=document.getElementById('t-'+id);const on=id===t;b.style.color=on?'var(--primary)':'var(--text-lt)';b.style.borderBottom=on?'2px solid var(--primary)':'2px solid transparent';});
-  const b=document.getElementById('pay-body');
-  if(t==='up'){
-    pwPlan='monthly';
-    b.innerHTML=`<div style="margin-bottom:12px">${['✅ Unlimited practice time','✅ All 300 scenarios','✅ All 24 languages','✅ Live interpreter mode','✅ Progress tracking'].map(f=>`<div style="font-size:13px;color:var(--text-md);padding:3px 0;font-weight:600">${f}</div>`).join('')}</div>
+async function openPay() {
+  ptab('up');
+  document.getElementById('paywall').classList.add('on');
+  try {
+    const cfg = await fetch('/config').then(r => r.json());
+    const mp = document.getElementById('p-monthly-price');
+    const yp = document.getElementById('p-yearly-price');
+    if (mp) mp.textContent = '£' + cfg.monthly_price + '/mo';
+    if (yp) yp.textContent = '£' + cfg.yearly_price + '/yr';
+  } catch(e) {}
+}
+function closePay() { document.getElementById('paywall').classList.remove('on'); }
+let pwPlan = 'monthly';
+function ptab(t) {
+  ['up','red'].forEach(id => {
+    const b = document.getElementById('pt-'+id), on = id===t;
+    b.style.color = on ? 'var(--pri)' : 'var(--txl)';
+    b.style.borderBottom = on ? '2px solid var(--pri)' : '2px solid transparent';
+  });
+  const b = document.getElementById('pay-body');
+  if (t === 'up') {
+    pwPlan = 'monthly';
+    b.innerHTML = `<div style="margin-bottom:12px">${['✅ Unlimited practice time','✅ All 300 scenarios','✅ All 45 languages','✅ Live interpreter mode','✅ Progress saved to your account'].map(f=>`<div style="font-size:13px;color:var(--txm);padding:3px 0;font-weight:600">${f}</div>`).join('')}</div>
     <div style="display:flex;gap:8px;margin-bottom:12px">
-      <button id="pm" onclick="pickPlan('monthly')" style="flex:1;padding:10px 7px;border-radius:var(--r-sm);border:2px solid var(--primary);background:#EAF5EE;cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px;color:var(--primary)">Monthly</div><div style="font-weight:900;font-size:14px;color:var(--primary);margin-top:1px">£3.99/mo</div><div style="font-size:9px;color:var(--text-lt)">Cancel anytime</div></button>
-      <button id="py" onclick="pickPlan('yearly')" style="flex:1;padding:10px 7px;border-radius:var(--r-sm);border:2px solid var(--border);background:var(--surface);cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px;color:var(--text)">Yearly</div><div style="font-weight:900;font-size:14px;color:var(--text);margin-top:1px">£29.99/yr</div><div style="font-size:9px;color:var(--text-lt)">Save 37%</div></button>
+      <button id="pm" onclick="pickPlan('monthly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--pri);background:#EAF5EE;cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px;color:var(--pri)">Monthly</div><div style="font-weight:900;font-size:14px;color:var(--pri);margin-top:1px" id="p-monthly-price">Loading...</div><div style="font-size:9px;color:var(--txl)">Cancel anytime</div></button>
+      <button id="py" onclick="pickPlan('yearly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--bdr);background:var(--sur);cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px">Yearly</div><div style="font-weight:900;font-size:14px;margin-top:1px" id="p-yearly-price">Loading...</div><div style="font-size:9px;color:var(--txl)">Save 37%</div></button>
     </div>
-    <input type="email" id="pem" placeholder="Your email address" class="inp" style="margin-bottom:9px"/>
-    <button class="btn btn-p" onclick="doPay()">Pay with Stripe →</button>
-    <p style="text-align:center;font-size:10px;color:var(--text-lt);margin-top:7px">Secure payment via Stripe · Cancel anytime</p>
-    <div id="perr"></div>`;
-  }else{
-    b.innerHTML=`<p style="font-size:13px;color:var(--text-md);margin-bottom:11px;line-height:1.6">If you have already paid, paste your premium token below.</p>
-    <textarea id="ptok" placeholder="Paste your premium token..." class="inp" rows="4" style="resize:none;margin-bottom:9px"></textarea>
-    <button class="btn btn-p" onclick="doRedeem()">Activate Premium →</button><div id="perr"></div>`;
+    <button class="btn bp" id="gpay-btn" onclick="doGPay()" style="background:#000;color:#fff;gap:10px">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0z" fill="#4285F4"/><text x="4" y="16" font-size="9" font-family="Arial" font-weight="bold" fill="white">G Pay</text></svg>
+      Pay with Google Pay
+    </button>
+    <div style="margin-top:10px;display:flex;gap:8px">
+      <input class="inp" id="coupon-inp" placeholder="Have a coupon code?" style="flex:1;font-size:13px;padding:10px 12px"/>
+      <button onclick="applyCoupon()" style="padding:10px 14px;border-radius:var(--rs);border:1.5px solid var(--pri);background:transparent;color:var(--pri);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">Apply</button>
+    </div>
+    <div id="p-err"></div>`;
+  } else {
+    b.innerHTML = `<p style="font-size:13px;color:var(--txm);margin-bottom:11px;line-height:1.6">Already subscribed on another device? Contact kanchan.g12@gmail.com to link your account.</p>`;
   }
 }
-function pickPlan(p){pwPlan=p;['monthly','yearly'].forEach(x=>{const b=document.getElementById(x==='monthly'?'pm':'py');const on=x===p;b.style.borderColor=on?'var(--primary)':'var(--border)';b.style.background=on?'#EAF5EE':'var(--surface)';});}
-async function doPay(){
-  const e=document.getElementById('pem').value;
-  if(!e.includes('@')){document.getElementById('perr').innerHTML='<div style="background:#FEE2E2;border-radius:var(--r-sm);padding:8px;font-size:12px;color:#991B1B;margin-top:7px">Please enter a valid email.</div>';return;}
-  document.getElementById('perr').innerHTML='<div style="text-align:center;padding:7px;font-size:12px;color:var(--text-lt)">Redirecting...</div>';
-  try{const d=await API.checkout(pwPlan,e);window.location.href=d.checkout_url;}
-  catch(err){document.getElementById('perr').innerHTML=`<div style="background:#FEE2E2;border-radius:var(--r-sm);padding:8px;font-size:12px;color:#991B1B;margin-top:7px">${err.message}</div>`;}
+function pickPlan(p) {
+  pwPlan = p;
+  ['monthly','yearly'].forEach(x => {
+    const b = document.getElementById(x==='monthly'?'pm':'py'), on = x===p;
+    b.style.borderColor = on ? 'var(--pri)' : 'var(--bdr)';
+    b.style.background  = on ? '#EAF5EE' : 'var(--sur)';
+  });
 }
-async function doRedeem(){
-  const tok=(document.getElementById('ptok').value||'').trim();if(!tok)return;
-  document.getElementById('perr').innerHTML='<div style="text-align:center;padding:7px;font-size:12px;color:var(--text-lt)">Verifying...</div>';
-  try{const d=await API.verify(tok);if(d.premium){S.setPremium(tok);closePay();buildDash();}}
-  catch(e){document.getElementById('perr').innerHTML='<div style="background:#FEE2E2;border-radius:var(--r-sm);padding:8px;font-size:12px;color:#991B1B;margin-top:7px">Invalid or expired token.</div>';}
+async function applyCoupon() {
+  const code = (document.getElementById('coupon-inp').value || '').trim();
+  if (!code) return;
+  document.getElementById('p-err').innerHTML = '<div style="text-align:center;padding:7px;font-size:12px;color:var(--txl)">Checking...</div>';
+  try {
+    const d = await api('POST', '/payment/coupon', {code});
+    if (d.premium) { userData.is_premium = true; closePay(); document.getElementById('p-err').innerHTML = ''; await buildDash(); }
+  } catch(e) {
+    document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
+  }
+}
+async function doGPay() {
+  const btn = document.getElementById('gpay-btn');
+  btn.textContent = 'Processing...'; btn.disabled = true;
+  const prices = {'monthly': '3.99', 'yearly': '29.99'};
+  const amount = prices[pwPlan] || '3.99';
+  if (!window.PaymentRequest) {
+    document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Google Pay not available on this browser. Please use Chrome on Android.</div>';
+    btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false; return;
+  }
+  try {
+    const request = new PaymentRequest(
+      [{supportedMethods:'https://google.com/pay',data:{apiVersion:2,apiVersionMinor:0,merchantInfo:{merchantName:'Lingi Coach — LOVEUAD LTD'},allowedPaymentMethods:[{type:'CARD',parameters:{allowedAuthMethods:['PAN_ONLY','CRYPTOGRAM_3DS'],allowedCardNetworks:['MASTERCARD','VISA','AMEX']},tokenizationSpecification:{type:'DIRECT',parameters:{protocolVersion:'ECv2',publicKey:window.GPAY_PUBLIC_KEY||''}}}]}}],
+      {total:{label:`Lingi Coach ${pwPlan==='yearly'?'Yearly':'Monthly'}`,amount:{currency:'GBP',value:amount}},displayItems:[{label:'Lingi Coach Pro',amount:{currency:'GBP',value:amount}}]}
+    );
+    const canPay = await request.canMakePayment();
+    if (!canPay) {
+      document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Google Pay not set up on this device. Please add a card to Google Pay first.</div>';
+      btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false; return;
+    }
+    const response = await request.show();
+    const result   = await api('POST', '/payment/gpay', {token: response.details, plan: pwPlan, amount});
+    await response.complete('success');
+    if (result.ok) { userData.is_premium = true; closePay(); await buildDash(); }
+  } catch(e) {
+    if (e.name !== 'AbortError') {
+      document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
+    }
+    btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false;
+  }
 }
 
-// PRIVACY
-function buildPrivacy(){
-  const secs=[
-    ['Who we are','LOVEUAD LTD (Company No. 16838046), England & Wales. Contact: kanchan.g12@gmail.com'],
-    ['AI system (EU AI Act Article 50)','Lingi Coach uses Google Gemini AI. All responses are AI-generated. You are interacting with an AI, not a human.'],
-    ['Data we collect','None. Conversations processed in real-time, held in server RAM only. Auto-deleted after 30 minutes.'],
-    ['On your device','Language preference, streak, and progress stored in browser localStorage. No cookies. Nothing sent to our servers.'],
-    ['Legal basis','GDPR Article 6(1)(a) — your explicit consent at first launch.'],
-    ['Third parties','Google LLC (Gemini API), Google Cloud Platform (hosting). Both bound by Google Data Processing Addendum.'],
-    ['Your rights','Access: nothing stored. Erasure: auto on session end. Withdraw: clear browser data. Complaints: ico.org.uk/make-a-complaint'],
-    ['Children','Age 13+ only. COPPA compliant.'],
-    ['Security','TLS in transit. No database. Sessions isolated by UUID.'],
-  ];
-  document.getElementById('priv-body').innerHTML=secs.map(([t,b])=>`<div style="margin-bottom:15px"><div style="font-weight:800;font-size:13px;color:var(--primary);margin-bottom:4px">${t}</div><p style="font-size:12px;color:var(--text-md);line-height:1.6">${b}</p></div>`).join('');
+function setMsg(id, msg, type) {
+  document.getElementById(id).innerHTML = `<div class="${type}" style="margin-bottom:10px">${msg}</div>`;
 }
 </script>
 </body>
