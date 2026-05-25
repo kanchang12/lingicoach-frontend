@@ -140,7 +140,44 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);-webkit-font-smoothing:ant
   <div class="scroll" style="padding:10px 13px"><div id="sc-list"></div></div>
 </div>
 
-<!-- CHAT -->
+<!-- LISTEN (Step 1 of 3) -->
+<div id="s-listen" class="sc">
+  <div class="hdr">
+    <button class="back" onclick="go('s-cat')">←</button>
+    <div>
+      <div class="htxt" id="ls-ttl"></div>
+      <div class="hsub">Step 1 of 3 · Listen to a model conversation</div>
+    </div>
+  </div>
+  <div style="padding:7px 13px;background:var(--acl);border-bottom:1px solid #F0D080;font-size:11px;color:#7A4D00;font-weight:700;flex-shrink:0;text-align:center">
+    🎧 Hear how a native speaker handles this situation before you try
+  </div>
+  <div class="scroll" id="ls-conv" style="padding:12px 13px"></div>
+  <div style="padding:10px 13px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bdr);display:flex;gap:8px;flex-shrink:0">
+    <button id="ls-play-btn" onclick="playAllConv()" style="flex:1;padding:12px 8px;border-radius:var(--rs);border:1.5px solid var(--pri);background:transparent;color:var(--pri);font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">▶ Play All</button>
+    <button onclick="go('s-learn')" style="flex:2;padding:12px;border-radius:var(--rs);border:none;background:var(--pri);color:#fff;font-family:'Nunito',sans-serif;font-weight:700;font-size:13px;cursor:pointer">Learn key phrases →</button>
+  </div>
+</div>
+
+<!-- LEARN (Step 2 of 3) -->
+<div id="s-learn" class="sc">
+  <div class="hdr">
+    <button class="back" onclick="go('s-listen')">←</button>
+    <div>
+      <div class="htxt" id="lrn-ttl"></div>
+      <div class="hsub">Step 2 of 3 · Learn key phrases</div>
+    </div>
+  </div>
+  <div style="padding:7px 13px;background:#EAF4F6;border-bottom:1px solid var(--bdr);font-size:11px;color:var(--prd);font-weight:700;flex-shrink:0;text-align:center">
+    📚 Tap 🔊 to hear each phrase — repeat out loud before practising
+  </div>
+  <div class="scroll" id="lrn-phrases" style="padding:14px 13px"></div>
+  <div style="padding:10px 13px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--bdr);flex-shrink:0">
+    <button onclick="startPractice()" style="width:100%;padding:14px;border-radius:var(--rs);border:none;background:var(--acc);color:#fff;font-family:'Nunito',sans-serif;font-weight:800;font-size:15px;cursor:pointer">🎤 Start Practice →</button>
+  </div>
+</div>
+
+<!-- CHAT (Step 3 of 3 — Practice) -->
 <div id="s-chat" class="sc">
   <div style="background:var(--pri);padding:env(safe-area-inset-top,12px) 13px 11px;flex-shrink:0">
     <div style="display:flex;align-items:center;gap:9px">
@@ -230,7 +267,6 @@ body{font-family:'Nunito',sans-serif;color:var(--txt);-webkit-font-smoothing:ant
 
 </div>
 <script>
-// ── CONFIG ────────────────────────────────────────────────────────────────
 const FREE_SECS = 180;
 let token = null, userData = null, currentLang = null, selLang = null;
 let currentCat = null, currentSc = null;
@@ -239,7 +275,12 @@ let timerInt = null, msgCount = 0;
 let trA = {}, trB = {}, recA = null, recB = null;
 let prevSc = 's-dash';
 
-// ── LANGS / CATS DATA ─────────────────────────────────────────────────────
+// Listen/Learn state
+let demoData    = null;
+let convLines   = [];
+let convIdx     = 0;
+let convPlaying = false;
+
 const LANGS = [
   {c:'bn',n:'Bengali',v:'বাংলা',f:'🇧🇩',s:'bn-BD'},{c:'hi',n:'Hindi',v:'हिन्दी',f:'🇮🇳',s:'hi-IN'},
   {c:'ta',n:'Tamil',v:'தமிழ்',f:'🇮🇳',s:'ta-IN'},{c:'te',n:'Telugu',v:'తెలుగు',f:'🇮🇳',s:'te-IN'},
@@ -589,7 +630,6 @@ const CATS=[
 ];
 const TOTAL = CATS.reduce((t,c)=>t+c.s.length,0);
 
-// ── API CALLS ─────────────────────────────────────────────────────────────
 async function api(method, path, body) {
   const h = {'Content-Type':'application/json'};
   if (token) h['Authorization'] = 'Bearer ' + token;
@@ -599,7 +639,6 @@ async function api(method, path, body) {
   return d;
 }
 
-// ── FREE TIMER (per device, resets daily) ─────────────────────────────────
 function freeUsed() {
   const t = new Date().toDateString();
   if (localStorage.getItem('lc_d') !== t) { localStorage.setItem('lc_d',t); localStorage.setItem('lc_s','0'); return 0; }
@@ -608,7 +647,6 @@ function freeUsed() {
 function addFree(n) { localStorage.setItem('lc_s', String(freeUsed()+n)); }
 function freeLeft() { return Math.max(0, FREE_SECS - freeUsed()); }
 
-// ── NAVIGATION ────────────────────────────────────────────────────────────
 function go(id, back) {
   if (!back) prevSc = document.querySelector('.sc.on')?.id || 's-dash';
   document.querySelectorAll('.sc').forEach(s => s.classList.remove('on'));
@@ -616,9 +654,7 @@ function go(id, back) {
   if (id === 's-dash') buildDash();
   if (id === 's-settings') buildSettings();
 }
-function goBack() { go(prevSc, true); }
 
-// ── BOOT ──────────────────────────────────────────────────────────────────
 window.addEventListener('load', () => {
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js').catch(()=>{});
   buildConsentBoxes();
@@ -630,15 +666,6 @@ window.addEventListener('load', () => {
     document.getElementById('load-msg').textContent = 'Loading your data...';
     api('GET', '/user/stats').then(d => {
       userData = d;
-      if (params.get('payment') === 'success' || !d.is_premium) {
-        // Refresh stats fresh from server after payment
-        return api('GET', '/user/stats').then(fresh => { userData = fresh; }).catch(()=>{}).then(() => {
-          if (!userData.consent) { go('s-consent'); return; }
-          if (!userData.language) { renderLangs(); go('s-lang'); return; }
-          currentLang = LANGS.find(l => l.c === userData.language) || LANGS[0];
-          go('s-dash');
-        });
-      }
       if (!d.consent) { go('s-consent'); return; }
       if (!d.language) { renderLangs(); go('s-lang'); return; }
       currentLang = LANGS.find(l => l.c === d.language) || LANGS[0];
@@ -649,7 +676,6 @@ window.addEventListener('load', () => {
   }
 });
 
-// ── AUTH ──────────────────────────────────────────────────────────────────
 let authMode = 'login';
 function authTab(m) {
   authMode = m;
@@ -699,7 +725,6 @@ async function doLogout() {
   go('s-auth');
 }
 
-// ── CONSENT ───────────────────────────────────────────────────────────────
 function buildConsentBoxes() {
   const items = [
     '<b>Age</b> — I confirm I am 13 or older.',
@@ -725,7 +750,6 @@ async function acceptConsent() {
   renderLangs(); go('s-lang');
 }
 
-// ── LANGUAGE ──────────────────────────────────────────────────────────────
 function renderLangs() {
   const q = (document.getElementById('lang-q')?.value || '').toLowerCase();
   const list = LANGS.filter(l => l.c !== 'en' && (l.n.toLowerCase().includes(q) || l.v.toLowerCase().includes(q)));
@@ -751,7 +775,6 @@ async function confirmLang() {
   go('s-dash');
 }
 
-// ── DASHBOARD ─────────────────────────────────────────────────────────────
 async function buildDash() {
   const d = userData || await api('GET', '/user/stats').catch(() => ({}));
   userData = d;
@@ -777,7 +800,6 @@ async function buildDash() {
   }).join('');
 }
 
-// ── CATEGORY ──────────────────────────────────────────────────────────────
 async function openCat(id) {
   currentCat = CATS.find(c => c.id === id);
   const prog = new Set((userData?.progress) || []);
@@ -793,11 +815,92 @@ async function openCat(id) {
   }).join('');
   go('s-cat');
 }
+
+// ── openSc → now goes to Listen first ─────────────────────────────────────
 async function openSc(id) {
   if (!userData?.is_premium && freeLeft() <= 0) { openPay(); return; }
   currentSc = currentCat.s.find(s => s.id === id);
-  await startChat();
+  await loadListenScreen();
 }
+
+// ── LISTEN / LEARN ─────────────────────────────────────────────────────────
+async function loadListenScreen() {
+  document.getElementById('ls-ttl').textContent  = currentSc.t;
+  document.getElementById('lrn-ttl').textContent = currentSc.t;
+  document.getElementById('ls-conv').innerHTML   =
+    '<div style="text-align:center;padding:50px 20px;color:var(--txl);font-size:13px">⏳ Generating conversation…</div>';
+  go('s-listen');
+  try {
+    demoData  = await api('POST', '/scenario/demo', { title: currentSc.t, situation: currentSc.d, role: currentSc.r });
+    convLines = demoData.conversation || [];
+    renderConversation();
+    renderPhrases();
+  } catch(e) {
+    document.getElementById('ls-conv').innerHTML =
+      `<div style="padding:20px;color:#991B1B;font-size:13px;text-align:center">Could not load. ${e.message}</div>`;
+  }
+}
+
+function renderConversation() {
+  document.getElementById('ls-conv').innerHTML = convLines.map((line, i) => {
+    const isA = line.speaker === 'A';
+    return `<div style="display:flex;justify-content:${isA?'flex-start':'flex-end'};margin-bottom:12px">
+      <div style="max-width:84%">
+        <div style="font-size:10px;color:var(--txl);font-weight:700;margin-bottom:3px;${isA?'':'text-align:right'}">${line.label||line.speaker}</div>
+        <div style="background:${isA?'var(--aib)':'var(--pri)'};color:${isA?'var(--txt)':'#fff'};padding:10px 13px;border-radius:${isA?'14px 14px 14px 4px':'14px 14px 4px 14px'};font-size:13px;line-height:1.55;font-weight:500">${line.text}</div>
+        <div style="margin-top:4px;${isA?'':'text-align:right'}">
+          <button onclick="speakConvLine(${i})" style="background:none;border:none;cursor:pointer;font-size:11px;color:var(--pri);font-weight:700;padding:2px 0">🔊 Listen</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderPhrases() {
+  const phrases = demoData?.key_phrases || [];
+  document.getElementById('lrn-phrases').innerHTML = phrases.map((p, i) => `
+    <div style="display:flex;align-items:center;gap:12px;background:var(--sur);border:1.5px solid var(--bdr);border-radius:var(--rs);padding:14px;margin-bottom:10px">
+      <div style="width:28px;height:28px;border-radius:8px;background:var(--pri);color:#fff;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center;flex-shrink:0">${i+1}</div>
+      <div style="flex:1;font-weight:700;font-size:14px;color:var(--txt);line-height:1.4">${p}</div>
+      <button onclick="speakText(${JSON.stringify(p)})" style="background:var(--pri);color:#fff;border:none;border-radius:99px;padding:6px 13px;font-weight:700;font-size:12px;cursor:pointer;flex-shrink:0">🔊</button>
+    </div>`
+  ).join('');
+}
+
+function speakConvLine(idx) {
+  if (convLines[idx]) speakText(convLines[idx].text);
+}
+
+function playAllConv() {
+  if (!convLines.length) return;
+  convIdx = 0; convPlaying = true;
+  const btn = document.getElementById('ls-play-btn');
+  btn.textContent = '⏹ Stop';
+  btn.onclick = stopAllConv;
+  playNextLine();
+}
+function stopAllConv() {
+  convPlaying = false;
+  window.speechSynthesis?.cancel();
+  const btn = document.getElementById('ls-play-btn');
+  if (btn) { btn.textContent = '▶ Play All'; btn.onclick = playAllConv; }
+}
+function playNextLine() {
+  if (!convPlaying || convIdx >= convLines.length) { stopAllConv(); return; }
+  const line   = convLines[convIdx];
+  const voices = window.speechSynthesis?.getVoices() || [];
+  const enV    = voices.filter(v => v.lang.startsWith('en'));
+  const utt    = new SpeechSynthesisUtterance(line.text);
+  utt.lang  = 'en-GB'; utt.rate = 0.9;
+  if (line.speaker === 'A' && enV.length > 0) utt.voice = enV[0];
+  if (line.speaker === 'B' && enV.length > 1) utt.voice = enV[1];
+  utt.onend  = () => { convIdx++; setTimeout(playNextLine, 500); };
+  utt.onerror = () => { convIdx++; setTimeout(playNextLine, 500); };
+  window.speechSynthesis.cancel();
+  window.speechSynthesis.speak(utt);
+}
+
+function startPractice() { startChat(); }
 
 // ── CHAT ──────────────────────────────────────────────────────────────────
 async function startChat() {
@@ -814,7 +917,6 @@ async function startChat() {
     const t = document.getElementById('ch-tmr');
     t.textContent = '⭐ Pro'; t.style.background = 'rgba(246,166,35,.3)';
   }
-  // Wake up speech engine on user gesture
   if (window.speechSynthesis) {
     window.speechSynthesis.cancel();
     const wake = new SpeechSynthesisUtterance('');
@@ -860,38 +962,18 @@ async function sendMsg(txt) {
   } finally { chatLoading = false; }
 }
 let ttsEnabled = true;
-
 function speakText(text) {
   if (!ttsEnabled || !window.speechSynthesis) return;
-  
   window.speechSynthesis.cancel();
-  
-  // 1. Remove markdown
   let clean = text.replace(/\*\*([^*]+)\*\*/g, '$1').trim();
-  
-  // 2. Remove all punctuation to prevent pausing/stuttering
   clean = clean.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()]/g, " ");
-  
-  // 3. Remove non-English characters (keep English letters, numbers, and spaces)
-  // This effectively skips regional language parts
   clean = clean.replace(/[^\x00-\x7F]/g, "");
-  
-  // 4. Clean up extra whitespace
   clean = clean.replace(/\s+/g, " ").trim();
-  
   if (!clean) return;
-
-  // 5. Create a single English-only utterance
-  const utt = new SpeechSynthesisUtterance(clean);
-  
+  const utt    = new SpeechSynthesisUtterance(clean);
   const voices = window.speechSynthesis.getVoices();
   const enVoice = voices.find(v => v.lang.startsWith('en')) || voices[0];
-  
-  utt.voice = enVoice;
-  utt.lang = 'en-GB';
-  utt.rate = 0.95;
-  utt.pitch = 1.0;
-
+  utt.voice = enVoice; utt.lang = 'en-GB'; utt.rate = 0.95; utt.pitch = 1.0;
   window.speechSynthesis.speak(utt);
 }
 function bubble(role, text, typing) {
@@ -911,7 +993,6 @@ function bubble(role, text, typing) {
   b.innerHTML = typing ? '<span class="dots"><span></span><span></span><span></span></span>'
                        : (text||'').replace(/\*\*([^*]+)\*\*/g,'<strong>$1</strong>');
   bWrap.appendChild(b);
-  // Add Listen button on AI bubbles
   if (role === 'ai' && !typing && text) {
     const listenBtn = document.createElement('button');
     const msgText = text;
@@ -942,9 +1023,7 @@ function updSnd() {
   b.style.cursor = v && !chatLoading ? 'pointer' : 'default';
 }
 function chatKey(e) { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMsg(); } }
-function replayAI() {
-  if (window._lastAIText) speakText(window._lastAIText);
-}
+function replayAI() { if (window._lastAIText) speakText(window._lastAIText); }
 function toggleTTS() {
   ttsEnabled = !ttsEnabled;
   const btn = document.getElementById('tts-btn');
@@ -965,7 +1044,6 @@ function toggleMic() {
   chatRec = r; r.start();
 }
 
-// ── INTERPRETER ───────────────────────────────────────────────────────────
 function buildInterpSelects() {
   const opts = LANGS.map(l => `<option value="${l.c}">${l.f} ${l.n}</option>`).join('');
   document.getElementById('la').innerHTML = opts; document.getElementById('lb').innerHTML = opts;
@@ -1005,7 +1083,6 @@ function playP(p) {
   window.speechSynthesis.cancel(); window.speechSynthesis.speak(u);
 }
 
-// ── SETTINGS ──────────────────────────────────────────────────────────────
 async function buildSettings() {
   const d = await api('GET', '/user/stats').catch(() => userData||{});
   userData = d;
@@ -1023,7 +1100,6 @@ async function buildSettings() {
   ).join('');
 }
 
-// ── PAYWALL ───────────────────────────────────────────────────────────────
 async function openPay() {
   ptab('up');
   document.getElementById('paywall').classList.add('on');
@@ -1052,7 +1128,7 @@ function ptab(t) {
       <button id="py" onclick="pickPlan('yearly')" style="flex:1;padding:10px 7px;border-radius:var(--rs);border:2px solid var(--bdr);background:var(--sur);cursor:pointer;font-family:'Nunito',sans-serif;text-align:center"><div style="font-weight:800;font-size:12px">Yearly</div><div style="font-weight:900;font-size:14px;margin-top:1px" id="p-yearly-price">Loading...</div><div style="font-size:9px;color:var(--txl)">Save 37%</div></button>
     </div>
     <button class="btn bp" id="gpay-btn" onclick="doGPay()" style="background:#000;color:#fff;gap:10px">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0z" fill="#fff"/><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0z" fill="#4285F4"/><text x="4" y="16" font-size="9" font-family="Arial" font-weight="bold" fill="white">G Pay</text></svg>
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0z" fill="#4285F4"/><text x="4" y="16" font-size="9" font-family="Arial" font-weight="bold" fill="white">G Pay</text></svg>
       Pay with Google Pay
     </button>
     <div style="margin-top:10px;display:flex;gap:8px">
@@ -1072,106 +1148,40 @@ function pickPlan(p) {
     b.style.background  = on ? '#EAF5EE' : 'var(--sur)';
   });
 }
-async function confirmManualPay() {
-  const email = (document.getElementById('pay-email').value || '').trim();
-  if (!email || !email.includes('@')) {
-    document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Enter the email you used to pay.</div>';
-    return;
-  }
-  document.getElementById('p-err').innerHTML = '<div style="text-align:center;padding:7px;font-size:12px;color:var(--txl)">Sending request...</div>';
-  try {
-    const d = await api('POST', '/payment/manual', {email});
-    if (d.ok) {
-      document.getElementById('p-err').innerHTML = '<div class="ok" style="margin-top:7px">✅ Request sent! You will be activated within a few minutes.</div>';
-    }
-  } catch(e) {
-    document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
-  }
-}
 async function applyCoupon() {
   const code = (document.getElementById('coupon-inp').value || '').trim();
   if (!code) return;
   document.getElementById('p-err').innerHTML = '<div style="text-align:center;padding:7px;font-size:12px;color:var(--txl)">Checking...</div>';
   try {
     const d = await api('POST', '/payment/coupon', {code});
-    if (d.premium) {
-      userData.is_premium = true;
-      closePay();
-      document.getElementById('p-err').innerHTML = '';
-      await buildDash();
-    }
+    if (d.premium) { userData.is_premium = true; closePay(); document.getElementById('p-err').innerHTML = ''; await buildDash(); }
   } catch(e) {
     document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
   }
 }
-async function doPay() {}
-
 async function doGPay() {
   const btn = document.getElementById('gpay-btn');
   btn.textContent = 'Processing...'; btn.disabled = true;
-
-  // Prices
   const prices = {'monthly': '3.99', 'yearly': '29.99'};
   const amount = prices[pwPlan] || '3.99';
-
   if (!window.PaymentRequest) {
     document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Google Pay not available on this browser. Please use Chrome on Android.</div>';
-    btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false;
-    return;
+    btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false; return;
   }
-
   try {
     const request = new PaymentRequest(
-      [{
-        supportedMethods: 'https://google.com/pay',
-        data: {
-          apiVersion: 2,
-          apiVersionMinor: 0,
-          merchantInfo: {
-            merchantName: 'Lingi Coach — LOVEUAD LTD'
-          },
-          allowedPaymentMethods: [{
-            type: 'CARD',
-            parameters: {
-              allowedAuthMethods: ['PAN_ONLY', 'CRYPTOGRAM_3DS'],
-              allowedCardNetworks: ['MASTERCARD', 'VISA', 'AMEX']
-            },
-            tokenizationSpecification: {
-              type: 'DIRECT',
-              parameters: {
-                protocolVersion: 'ECv2',
-                publicKey: window.GPAY_PUBLIC_KEY || ''
-              }
-            }
-          }]
-        }
-      }],
-      {
-        total: { label: `Lingi Coach ${pwPlan === 'yearly' ? 'Yearly' : 'Monthly'}`, amount: { currency: 'GBP', value: amount } },
-        displayItems: [{ label: 'Lingi Coach Pro', amount: { currency: 'GBP', value: amount } }]
-      }
+      [{supportedMethods:'https://google.com/pay',data:{apiVersion:2,apiVersionMinor:0,merchantInfo:{merchantName:'Lingi Coach — LOVEUAD LTD'},allowedPaymentMethods:[{type:'CARD',parameters:{allowedAuthMethods:['PAN_ONLY','CRYPTOGRAM_3DS'],allowedCardNetworks:['MASTERCARD','VISA','AMEX']},tokenizationSpecification:{type:'DIRECT',parameters:{protocolVersion:'ECv2',publicKey:window.GPAY_PUBLIC_KEY||''}}}]}}],
+      {total:{label:`Lingi Coach ${pwPlan==='yearly'?'Yearly':'Monthly'}`,amount:{currency:'GBP',value:amount}},displayItems:[{label:'Lingi Coach Pro',amount:{currency:'GBP',value:amount}}]}
     );
-
     const canPay = await request.canMakePayment();
     if (!canPay) {
       document.getElementById('p-err').innerHTML = '<div class="err" style="margin-top:7px">Google Pay not set up on this device. Please add a card to Google Pay first.</div>';
-      btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false;
-      return;
+      btn.innerHTML = 'Pay with Google Pay'; btn.disabled = false; return;
     }
-
     const response = await request.show();
-    // Send token to backend
-    const result = await api('POST', '/payment/gpay', {
-      token: response.details,
-      plan: pwPlan,
-      amount: amount
-    });
+    const result   = await api('POST', '/payment/gpay', {token: response.details, plan: pwPlan, amount});
     await response.complete('success');
-    if (result.ok) {
-      userData.is_premium = true;
-      closePay();
-      await buildDash();
-    }
+    if (result.ok) { userData.is_premium = true; closePay(); await buildDash(); }
   } catch(e) {
     if (e.name !== 'AbortError') {
       document.getElementById('p-err').innerHTML = `<div class="err" style="margin-top:7px">${e.message}</div>`;
@@ -1180,7 +1190,6 @@ async function doGPay() {
   }
 }
 
-// ── UTILS ─────────────────────────────────────────────────────────────────
 function setMsg(id, msg, type) {
   document.getElementById(id).innerHTML = `<div class="${type}" style="margin-bottom:10px">${msg}</div>`;
 }
