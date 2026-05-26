@@ -24,7 +24,7 @@ SUPABASE_ANON     = os.environ.get("SUPABASE_ANON_KEY", "")
 SUPABASE_SERVICE  = os.environ.get("SUPABASE_SERVICE_KEY", "")
 
 gemini  = genai.Client(api_key=GEMINI_API_KEY)
-MODEL = "gemini-3.5-flash"
+MODEL = "gemini-2.0-flash"
 
 sessions     = {}
 rate_limits  = defaultdict(list)
