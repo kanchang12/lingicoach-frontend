@@ -1,4 +1,6 @@
 import os, uuid, time, httpx, hmac, hashlib
+from dotenv import load_dotenv
+load_dotenv()
 from flask import Flask, request, jsonify, render_template, send_from_directory
 from flask_cors import CORS
 from google import genai
@@ -388,7 +390,7 @@ def delete_session(sid):
 def translate():
     if not rate_ok(request.remote_addr):
         return jsonify({"error": "Too many requests"}), 429
-    dataया      = request.json
+    data      = request.json
     from_lang = LANGUAGES.get(data.get("from_lang_code", ""), data.get("from_lang_code", ""))
     to_lang   = LANGUAGES.get(data.get("to_lang_code", ""), data.get("to_lang_code", ""))
     try:
@@ -403,19 +405,45 @@ def translate():
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+# ── NEW: Scenario demo ─────────────────────────────────────────────────────
+import json as _json, re as _re
+
+@app.route("/scenario/demo", methods=["POST"])
+@require_auth
+def scenario_demo():
+    if not rate_ok(request.remote_addr):
+        return jsonify({"error": "Too many requests"}), 429
+    data      = request.json
+    title     = data.get("title", "")
+    situation = data.get("situation", "")
+    role      = data.get("role", "")
+    prompt = (
+        f"Create a short natural British English conversation for this learning scenario.\n\n"
+        f"Scenario: {title}\nSituation: {situation}\nThe learner speaks to: {role}\n\n"
+        f"Return ONLY a valid JSON object. No markdown. No explanation. No code fences.\n\n"
+        f'Format: {{"conversation":[{{"speaker":"A","label":"You","text":"..."}},{{"speaker":"B","label":"{role}","text":"..."}}],'
+        f'"key_phrases":["phrase 1","phrase 2","phrase 3","phrase 4","phrase 5"]}}\n\n'
+        f"Rules:\n"
+        f"- 8 to 10 exchanges, alternating A then B\n"
+        f"- Speaker A is the learner, Speaker B is the {role}\n"
+        f"- Natural, realistic British English\n"
+        f"- key_phrases: 5 most useful expressions from the conversation\n"
+        f"- JSON only, nothing else"
+    )
+    try:
+        resp   = gemini.models.generate_content(model=MODEL, contents=prompt)
+        text   = resp.text.strip()
+        text   = _re.sub(r'^```json\s*', '', text, flags=_re.MULTILINE)
+        text   = _re.sub(r'```\s*$',     '', text, flags=_re.MULTILINE)
+        parsed = _json.loads(text.strip())
+        return jsonify(parsed)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
 # ── Payment (Google Play Billing only) ────────────────────────────────────
 @app.route("/payment/play-subscribe", methods=["POST"])
 @require_auth
 def play_subscribe():
-    """
-    Receive Google Play subscription purchase from Android app:
-    {
-      "package_name": "com.yourapp.lingi",
-      "subscription_id": "lingi_monthly_gb",
-      "purchase_token": "..."
-    }
-    Verify with Google Play and activate premium.
-    """
     data = request.json
     package_name = data.get("package_name", GOOGLE_PACKAGE_NAME)
     subscription_id = data.get("subscription_id", "")
@@ -439,13 +467,6 @@ def play_subscribe():
 
 @app.route("/payment/play-webhook", methods=["POST"])
 def play_webhook():
-    """
-    Handle Google Play Developer Notifications (Pub/Sub webhook).
-    Google sends real-time updates for renewals, cancellations, refunds, etc.
-    """
-    data = request.json
-    # Google sends a message in a specific format; for simplicity, log for now.
-    # In production: parse subscriptionNotification, update premium status.
     log_event("/payment/play-webhook", f"✅ Received Google Play notification", "system")
     return jsonify({"received": True})
 
